@@ -403,8 +403,8 @@ function StepConfirm({
   onSubmit,
 }: {
   booking: Booking;
-  service: ReturnType<typeof services.find>;
-  selectedAddOns: typeof addOns;
+  service: Service | null;
+  selectedAddOns: AddOn[];
   total: number;
   submitted: boolean;
   onSubmit: () => void;
@@ -483,7 +483,7 @@ function Row({ k, v, bold }: { k: string; v: string; bold?: boolean }) {
 }
 
 /* ---------------- STEP 6: Pick Slot via Google Calendar ---------------- */
-function StepSlot({ booking, service, total }: { booking: Booking; service: ReturnType<typeof services.find>; total: number }) {
+function StepSlot({ booking, service, total }: { booking: Booking; service: Service | null; total: number }) {
   const summary = buildSummary({ booking, service, selectedAddOns: addOns.filter((a) => booking.addOnIds.includes(a.id)), total });
   const waUrl = `https://wa.me/${business.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
 
@@ -542,8 +542,8 @@ function buildSummary({
   total,
 }: {
   booking: Booking;
-  service: ReturnType<typeof services.find>;
-  selectedAddOns: typeof addOns;
+  service: Service | null;
+  selectedAddOns: AddOn[];
   total: number;
 }) {
   return [
