@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { Check, Copy, ChevronLeft, ChevronRight, Sparkles, AlertCircle, Calendar as CalIcon } from "lucide-react";
-import { services, addOns, business, policies } from "@/lib/site-data";
+import { services, addOns, business, policies, type Service, type AddOn } from "@/lib/site-data";
 
 const searchSchema = z.object({
   service: fallback(z.string().optional(), undefined),
