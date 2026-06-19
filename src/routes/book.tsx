@@ -318,15 +318,16 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
       </div>
 
       <div className="mt-6 grid gap-4">
-        <Field label="Transaction reference number" required>
+        <Field label="Transaction reference" required>
           <input
             value={booking.txRef}
             onChange={(e) => set({ ...booking, txRef: e.target.value })}
             className="input"
-            placeholder="e.g. OM123456789"
+            placeholder="e.g. PTC-AX2389 (letters & numbers both OK)"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            This is the unique code from your payment confirmation — we cross-check it against our statement.
+            The unique code from your Pay-to-Cell confirmation SMS. Letters, numbers or dashes —
+            paste it exactly as you received it.
           </p>
         </Field>
         <div className="rounded-2xl border-2 border-destructive/60 bg-destructive/5 p-4">
@@ -504,29 +505,49 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
         />
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gold/40 bg-accent/10 p-4 text-sm">
-        <p className="flex items-center gap-2 font-semibold text-wine">
-          <Sparkles className="h-4 w-4" /> Don't forget
+      <div className="mt-6 rounded-2xl border-2 border-gold bg-accent/15 p-5 text-sm">
+        <p className="flex items-center gap-2 font-bold text-wine">
+          <Sparkles className="h-4 w-4 text-gold" /> WhatsApp upload checklist
         </p>
-        <ul className="mt-2 space-y-1 text-xs text-foreground/80">
-          <li>• Send your proof of payment & inspo photos on WhatsApp.</li>
-          <li>• Add the appointment to your calendar — we'll confirm via WhatsApp the day before.</li>
-          <li>• Arrive on time — late by 15+ minutes is an automatic cancellation.</li>
+        <p className="mt-1 text-xs text-foreground/75">
+          Send all of these in the same WhatsApp chat to <strong>{business.whatsappDisplay}</strong>.
+          Your slot stays <em>pending</em> until each item is received.
+        </p>
+        <ul className="mt-3 space-y-2 text-sm text-foreground/90">
+          <ChecklistItem>📸 Screenshot of your Pay-to-Cell payment confirmation</ChecklistItem>
+          <ChecklistItem>🔖 Transaction reference (paste the exact code)</ChecklistItem>
+          <ChecklistItem>💅 1–3 inspiration photos for your design</ChecklistItem>
+          <ChecklistItem>🗓️ A screenshot of the calendar slot you just picked</ChecklistItem>
+          <ChecklistItem>📱 Your full name &amp; the WhatsApp number you booked under</ChecklistItem>
         </ul>
         <a
           href={waUrl}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-block rounded-full bg-wine px-5 py-2 text-xs font-semibold text-primary-foreground"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wine px-5 py-2 text-xs font-semibold text-primary-foreground"
         >
-          Open WhatsApp
+          Open WhatsApp with summary pre-filled
         </a>
       </div>
 
-      <Link to="/" className="mt-6 block text-center text-sm font-semibold text-wine underline-offset-4 hover:underline">
-        Back to home
-      </Link>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
+        <Link to="/status" className="font-semibold text-wine underline-offset-4 hover:underline">
+          Check booking status →
+        </Link>
+        <Link to="/" className="font-semibold text-wine/70 underline-offset-4 hover:underline">
+          Back to home
+        </Link>
+      </div>
     </div>
+  );
+}
+
+function ChecklistItem({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2 rounded-lg bg-card/70 px-3 py-2">
+      <Check className="mt-0.5 h-4 w-4 flex-none text-gold" />
+      <span>{children}</span>
+    </li>
   );
 }
 

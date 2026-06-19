@@ -21,7 +21,7 @@ export const business = {
   currency: "P",
   depositAmount: 50,
   bankDetails: {
-    mobileMoneyProvider: "Orange Money",
+    mobileMoneyProvider: "Pay to Cell",
     mobileMoneyNumber: "+267 77 981 109",
     accountName: "Tebo's Nail Heaven",
     bankName: "FNB Botswana",
