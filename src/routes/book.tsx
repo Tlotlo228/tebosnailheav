@@ -170,7 +170,6 @@ function StepService({ booking, set }: { booking: Booking; set: (b: Booking) => 
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-wine">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">{s.duration} min</p>
                     </div>
                     <span className="text-base font-bold text-wine">P{s.price}</span>
                   </button>
