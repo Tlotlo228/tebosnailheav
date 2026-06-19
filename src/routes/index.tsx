@@ -109,7 +109,7 @@ function Home() {
               <p className="mt-2 text-sm text-muted-foreground">{s.description}</p>
               <div className="mt-5 flex items-end justify-between">
                 <span className="text-2xl font-bold text-wine">P{s.price}</span>
-                <span className="text-xs text-muted-foreground">{s.duration} min</span>
+                <span className="text-xs font-semibold text-gold">Book →</span>
               </div>
             </Link>
           ))}
