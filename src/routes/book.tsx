@@ -318,15 +318,16 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
       </div>
 
       <div className="mt-6 grid gap-4">
-        <Field label="Transaction reference number" required>
+        <Field label="Transaction reference" required>
           <input
             value={booking.txRef}
             onChange={(e) => set({ ...booking, txRef: e.target.value })}
             className="input"
-            placeholder="e.g. OM123456789"
+            placeholder="e.g. PTC-AX2389 (letters & numbers both OK)"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            This is the unique code from your payment confirmation — we cross-check it against our statement.
+            The unique code from your Pay-to-Cell confirmation SMS. Letters, numbers or dashes —
+            paste it exactly as you received it.
           </p>
         </Field>
         <div className="rounded-2xl border-2 border-destructive/60 bg-destructive/5 p-4">
