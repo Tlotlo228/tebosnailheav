@@ -71,7 +71,7 @@ function BookingPage() {
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className={`mx-auto px-4 py-10 ${step === 5 ? "max-w-6xl" : "max-w-3xl"}`}>
       <header className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Booking</p>
         <h1 className="mt-2 font-script text-4xl text-wine md:text-5xl">Reserve your slot</h1>
@@ -170,7 +170,6 @@ function StepService({ booking, set }: { booking: Booking; set: (b: Booking) => 
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-wine">{s.name}</p>
-                      <p className="text-xs text-muted-foreground">{s.duration} min</p>
                     </div>
                     <span className="text-base font-bold text-wine">P{s.price}</span>
                   </button>
@@ -258,19 +257,16 @@ function StepDetails({ booking, set }: { booking: Booking; set: (b: Booking) => 
             placeholder="Any allergies, preferences, special requests…"
           />
         </Field>
-        <Field label="Inspiration photo (optional)">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => set({ ...booking, inspoFileName: e.target.files?.[0]?.name ?? null })}
-            className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-wine file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground"
-          />
-          {booking.inspoFileName && <p className="mt-1 text-xs text-muted-foreground">Selected: {booking.inspoFileName}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">
-            Note: WhatsApp can't auto-attach files via a link — please send this photo in the WhatsApp
-            chat we'll open at the end.
+        <div className="rounded-2xl border-2 border-gold bg-accent/15 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-wine">
+            <Sparkles className="h-4 w-4 text-gold" /> Inspiration photos
           </p>
-        </Field>
+          <p className="mt-2 text-sm text-foreground/85">
+            Please send your inspiration / reference photos <strong>manually on WhatsApp</strong>
+            {" "}to <strong>{business.whatsappDisplay}</strong> after completing this booking.
+            We'll open the chat for you at the final step.
+          </p>
+        </div>
       </div>
       <style>{`.input{width:100%;border:1px solid var(--color-border);background:var(--color-card);padding:0.65rem 0.85rem;border-radius:0.75rem;font-size:0.95rem;color:var(--color-foreground);outline:none;}
 .input:focus{border-color:var(--color-ring);box-shadow:0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);} `}</style>
@@ -333,18 +329,16 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
             This is the unique code from your payment confirmation — we cross-check it against our statement.
           </p>
         </Field>
-        <Field label="Proof of payment screenshot (optional but recommended)">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => set({ ...booking, proofFileName: e.target.files?.[0]?.name ?? null })}
-            className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-wine file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground"
-          />
-          {booking.proofFileName && <p className="mt-1 text-xs text-muted-foreground">Selected: {booking.proofFileName}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">
-            Please send this screenshot in the WhatsApp chat we open at the end.
+        <div className="rounded-2xl border-2 border-destructive/60 bg-destructive/5 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-destructive">
+            <AlertCircle className="h-4 w-4" /> Send your proof of payment on WhatsApp
           </p>
-        </Field>
+          <p className="mt-2 text-sm text-foreground/85">
+            You must <strong>manually send a screenshot</strong> of your payment confirmation
+            on WhatsApp to <strong>{business.whatsappDisplay}</strong>. We open the chat for you
+            at the final step — your booking is only verified once we receive the screenshot.
+          </p>
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
@@ -499,13 +493,14 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
         forget — Google Calendar will send you a reminder.
       </p>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-border shadow-soft">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-luxe">
         <iframe
           title="Book a slot with Tebo's Nail Heaven"
           src={business.bookingEmbedUrl}
-          style={{ border: 0 }}
+          style={{ border: 0, display: "block", width: "100%", minHeight: "900px" }}
           width="100%"
-          height="720"
+          height="900"
+          loading="lazy"
         />
       </div>
 

@@ -44,7 +44,7 @@ function ServicesPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-wine">{s.name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{s.duration} min</p>
+                    
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-xl font-bold text-wine">P{s.price}</span>
