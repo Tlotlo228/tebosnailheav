@@ -71,7 +71,7 @@ function BookingPage() {
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
+    <div className={`mx-auto px-4 py-10 ${step === 5 ? "max-w-6xl" : "max-w-3xl"}`}>
       <header className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Booking</p>
         <h1 className="mt-2 font-script text-4xl text-wine md:text-5xl">Reserve your slot</h1>
