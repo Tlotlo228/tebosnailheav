@@ -329,18 +329,16 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
             This is the unique code from your payment confirmation — we cross-check it against our statement.
           </p>
         </Field>
-        <Field label="Proof of payment screenshot (optional but recommended)">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => set({ ...booking, proofFileName: e.target.files?.[0]?.name ?? null })}
-            className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-wine file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground"
-          />
-          {booking.proofFileName && <p className="mt-1 text-xs text-muted-foreground">Selected: {booking.proofFileName}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">
-            Please send this screenshot in the WhatsApp chat we open at the end.
+        <div className="rounded-2xl border-2 border-destructive/60 bg-destructive/5 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-destructive">
+            <AlertCircle className="h-4 w-4" /> Send your proof of payment on WhatsApp
           </p>
-        </Field>
+          <p className="mt-2 text-sm text-foreground/85">
+            You must <strong>manually send a screenshot</strong> of your payment confirmation
+            on WhatsApp to <strong>{business.whatsappDisplay}</strong>. We open the chat for you
+            at the final step — your booking is only verified once we receive the screenshot.
+          </p>
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
