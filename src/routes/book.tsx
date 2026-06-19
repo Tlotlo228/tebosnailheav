@@ -493,13 +493,14 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
         forget — Google Calendar will send you a reminder.
       </p>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-border shadow-soft">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-luxe">
         <iframe
           title="Book a slot with Tebo's Nail Heaven"
           src={business.bookingEmbedUrl}
-          style={{ border: 0 }}
+          style={{ border: 0, display: "block", width: "100%", minHeight: "900px" }}
           width="100%"
-          height="720"
+          height="900"
+          loading="lazy"
         />
       </div>
 
