@@ -257,19 +257,16 @@ function StepDetails({ booking, set }: { booking: Booking; set: (b: Booking) => 
             placeholder="Any allergies, preferences, special requests…"
           />
         </Field>
-        <Field label="Inspiration photo (optional)">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => set({ ...booking, inspoFileName: e.target.files?.[0]?.name ?? null })}
-            className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-wine file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary-foreground"
-          />
-          {booking.inspoFileName && <p className="mt-1 text-xs text-muted-foreground">Selected: {booking.inspoFileName}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">
-            Note: WhatsApp can't auto-attach files via a link — please send this photo in the WhatsApp
-            chat we'll open at the end.
+        <div className="rounded-2xl border-2 border-gold bg-accent/15 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-wine">
+            <Sparkles className="h-4 w-4 text-gold" /> Inspiration photos
           </p>
-        </Field>
+          <p className="mt-2 text-sm text-foreground/85">
+            Please send your inspiration / reference photos <strong>manually on WhatsApp</strong>
+            {" "}to <strong>{business.whatsappDisplay}</strong> after completing this booking.
+            We'll open the chat for you at the final step.
+          </p>
+        </div>
       </div>
       <style>{`.input{width:100%;border:1px solid var(--color-border);background:var(--color-card);padding:0.65rem 0.85rem;border-radius:0.75rem;font-size:0.95rem;color:var(--color-foreground);outline:none;}
 .input:focus{border-color:var(--color-ring);box-shadow:0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);} `}</style>
