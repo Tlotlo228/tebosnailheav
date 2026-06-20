@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatusRouteImport } from './routes/status'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -23,11 +22,6 @@ import { Route as IndexRouteImport } from './routes/index'
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -80,7 +74,6 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
 }
 export interface FileRoutesByTo {
@@ -92,7 +85,6 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
 }
 export interface FileRoutesById {
@@ -105,7 +97,6 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/reviews': typeof ReviewsRoute
   '/services': typeof ServicesRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
 }
 export interface FileRouteTypes {
@@ -119,7 +110,6 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/reviews'
     | '/services'
-    | '/sitemap.xml'
     | '/status'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -131,7 +121,6 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/reviews'
     | '/services'
-    | '/sitemap.xml'
     | '/status'
   id:
     | '__root__'
@@ -143,7 +132,6 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/reviews'
     | '/services'
-    | '/sitemap.xml'
     | '/status'
   fileRoutesById: FileRoutesById
 }
@@ -156,7 +144,6 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   ReviewsRoute: typeof ReviewsRoute
   ServicesRoute: typeof ServicesRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
 }
 
@@ -167,13 +154,6 @@ declare module '@tanstack/react-router' {
       path: '/status'
       fullPath: '/status'
       preLoaderRoute: typeof StatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -244,7 +224,6 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   ReviewsRoute: ReviewsRoute,
   ServicesRoute: ServicesRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
 }
 export const routeTree = rootRouteImport
