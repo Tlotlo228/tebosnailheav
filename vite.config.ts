@@ -1,12 +1,21 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-process.env.LOVABLE_SANDBOX = "true";
-
-const isLovableBuild = true;
-const STATIC_BUILD = false;
+const isLovableBuild =
+  !!process.env.LOVABLE_SANDBOX || !!process.env.DEV_SERVER__PROJECT_PATH;
+const STATIC_BUILD = !isLovableBuild;
 
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    ...(STATIC_BUILD
+      ? {
+          spa: {
+            enabled: true,
+            maskPath: "/",
+            prerender: { outputPath: "/index" },
+          },
+        }
+      : {}),
   },
+  ...(STATIC_BUILD ? { nitro: false as const } : {}),
 });
