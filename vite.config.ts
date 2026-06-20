@@ -1,15 +1,21 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
+import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+
+const isLovableBuild =
+  !!process.env.LOVABLE_SANDBOX || !!process.env.DEV_SERVER__PROJECT_PATH;
+const STATIC_BUILD = !isLovableBuild;
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  build: {
-    outDir: "dist",
+  tanstackStart: {
+    server: { entry: "server" },
+    ...(STATIC_BUILD
+      ? {
+          spa: {
+            enabled: true,
+            maskPath: "/",
+            prerender: { outputPath: "/index" },
+          },
+        }
+      : {}),
+    ...(STATIC_BUILD ? { nitro: false as const } : {}),
   },
 });
