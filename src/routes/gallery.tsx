@@ -9,14 +9,12 @@ import wa0032 from "../assets/WA0032.jpg";
 import wa0033 from "../assets/WA0033.jpg";
 
 const items: Item[] = [
-  { url: wa0030, alt: "Pink & white French gel with gold trim", category: "Gel" },
-  { url: wa0033, alt: "Deep red marble gel extensions", category: "Gel" },
-  { url: wa0031, alt: "Red ombré almond polygel", category: "Polygel" },
-  { url: wa0032, alt: "Glossy magenta gel manicure", category: "Color" },
-  { url: wa0028, alt: "Lilac purple gel manicure", category: "Color" },
-  { url: wa0030, alt: "French tip gel set", category: "Gel" },
-  { url: wa0031, alt: "Almond polygel set", category: "Polygel" },
-  { url: wa0033, alt: "Burgundy marble nails", category: "Gel" },
+  { url: "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9", alt: "Pink & white French gel with gold trim", category: "Gel" },
+  { url: "https://drive.google.com/uc?export=view&id=1Glb1ba18HyGobwdB1cBM8BtKjb6IfO0Y", alt: "Deep red marble gel extensions", category: "Gel" },
+  { url: "https://drive.google.com/uc?export=view&id=1j4OimcZWJTICkpzNq5Jpa-VVgC5jHB2V", alt: "Red ombré almond polygel", category: "Polygel" },
+  { url: "https://drive.google.com/uc?export=view&id=1g1ilPHs9zgpLGdgUAfW9M9o4sbPt1WbX", alt: "Glossy magenta gel manicure", category: "Color" },
+  { url: "https://drive.google.com/uc?export=view&id=1KWxSpMNX0pkuQc3rxX0E2Ma8S9NuakPr", alt: "Lilac purple gel manicure", category: "Color" },
+  { url: "https://drive.google.com/uc?export=view&id=12S-vubjIk796FdZ6GQIJ9V7X5Z5Rfpoj", alt: "French tip gel set", category: "Gel" },
 ];
 const categories = ["All", "Gel", "Polygel", "Color"] as const;
 export const Route = createFileRoute("/gallery")({
