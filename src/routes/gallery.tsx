@@ -14,3 +14,4 @@ const items: Item[] = [
   { url: wa0031, alt: "Almond polygel set", category: "Polygel" },
   { url: wa0033, alt: "Burgundy marble nails", category: "Gel" },
 ];
+
