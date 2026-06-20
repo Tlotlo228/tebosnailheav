@@ -1,8 +1,4 @@
 {
-  "buildCommand": "vite build",
-  "outputDirectory": "dist/client",
-  "framework": null,
-  "env": {
-    "STATIC_BUILD": "true"
-  }
+  "outputDirectory": "dist/server",
+  "framework": null
 }
