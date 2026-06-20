@@ -1,4 +1,5 @@
 {
-  "outputDirectory": "dist/server",
-  "framework": null
+  "outputDirectory": "dist/client",
+  "framework": null,
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
