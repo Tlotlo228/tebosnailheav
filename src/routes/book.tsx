@@ -77,7 +77,6 @@ function BookingPage() {
         <h1 className="mt-2 font-script text-4xl text-wine md:text-5xl">Reserve your slot</h1>
       </header>
 
-      {/* Progress */}
       <ol className="mt-8 flex items-center justify-between gap-1 overflow-x-auto pb-2">
         {steps.map((label, i) => (
           <li key={label} className="flex flex-1 items-center gap-1">
@@ -143,7 +142,6 @@ function BookingPage() {
   );
 }
 
-/* ---------------- STEP 1: Service ---------------- */
 function StepService({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
   const grouped = services.reduce<Record<string, typeof services>>((acc, s) => {
     (acc[s.category] ||= []).push(s);
@@ -183,7 +181,6 @@ function StepService({ booking, set }: { booking: Booking; set: (b: Booking) => 
   );
 }
 
-/* ---------------- STEP 2: Add-ons ---------------- */
 function StepAddons({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
   const toggle = (id: string) =>
     set({
@@ -226,7 +223,6 @@ function StepAddons({ booking, set }: { booking: Booking; set: (b: Booking) => v
   );
 }
 
-/* ---------------- STEP 3: Details ---------------- */
 function StepDetails({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
   return (
     <div>
@@ -268,8 +264,7 @@ function StepDetails({ booking, set }: { booking: Booking; set: (b: Booking) => 
           </p>
         </div>
       </div>
-      <style>{`.input{width:100%;border:1px solid var(--color-border);background:var(--color-card);padding:0.65rem 0.85rem;border-radius:0.75rem;font-size:0.95rem;color:var(--color-foreground);outline:none;}
-.input:focus{border-color:var(--color-ring);box-shadow:0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);} `}</style>
+      <style>{`.input{width:100%;border:1px solid var(--color-border);background:var(--color-card);padding:0.65rem 0.85rem;border-radius:0.75rem;font-size:0.95rem;color:var(--color-foreground);outline:none;}.input:focus{border-color:var(--color-ring);box-shadow:0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);}`}</style>
     </div>
   );
 }
@@ -303,15 +298,31 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
       </p>
 
       <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Mobile Money</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Bank transfer</p>
+        <div className="mt-3 space-y-2 text-sm">
+          <CopyRow label="Bank" value={business.bankDetails.bankName} copied={copied === "bank"} onCopy={() => copy(business.bankDetails.bankName, "bank")} />
+          <CopyRow label="Acc no." value={business.bankDetails.accountNumber} copied={copied === "acc"} onCopy={() => copy(business.bankDetails.accountNumber, "acc")} />
+          <CopyRow label="Branch" value={business.bankDetails.branch} copied={copied === "branch"} onCopy={() => copy(business.bankDetails.branch, "branch")} />
+          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "name"} onCopy={() => copy(business.bankDetails.accountName, "name")} />
+          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt-bank"} onCopy={() => copy(String(business.depositAmount), "amt-bank")} />
+        </div>
+        <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
+          <li>Log in to your Absa online banking or app.</li>
+          <li>Transfer <strong>P{business.depositAmount}</strong> to account <strong>{business.bankDetails.accountNumber}</strong> ({business.bankDetails.branch} branch).</li>
+          <li>Save the proof of payment / reference for the next step.</li>
+        </ol>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay-to-Cell / eWallet</p>
         <div className="mt-3 space-y-2 text-sm">
           <CopyRow label="Provider" value={business.bankDetails.mobileMoneyProvider} copied={copied === "p"} onCopy={() => copy(business.bankDetails.mobileMoneyProvider, "p")} />
-          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyNumber, "n")} />
+          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyRaw, "n")} />
           <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "a"} onCopy={() => copy(business.bankDetails.accountName, "a")} />
           <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt"} onCopy={() => copy(String(business.depositAmount), "amt")} />
         </div>
         <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
-          <li>Open your mobile money app or dial your provider's USSD.</li>
+          <li>Open your mobile banking app or dial your provider's USSD.</li>
           <li>Send <strong>P{business.depositAmount}</strong> to <strong>{business.bankDetails.mobileMoneyNumber}</strong>.</li>
           <li>Copy the reference/confirmation code you receive.</li>
         </ol>
@@ -326,7 +337,7 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
             placeholder="e.g. PTC-AX2389 (letters & numbers both OK)"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            The unique code from your Pay-to-Cell confirmation SMS. Letters, numbers or dashes —
+            The unique code from your Pay-to-Cell confirmation SMS or bank transfer reference. Letters, numbers or dashes —
             paste it exactly as you received it.
           </p>
         </Field>
@@ -388,22 +399,7 @@ function CopyRow({ label, value, copied, onCopy }: { label: string; value: strin
   );
 }
 
-/* ---------------- STEP 5: Confirm ---------------- */
-function StepConfirm({
-  booking,
-  service,
-  selectedAddOns,
-  total,
-  submitted,
-  onSubmit,
-}: {
-  booking: Booking;
-  service: Service | null;
-  selectedAddOns: AddOn[];
-  total: number;
-  submitted: boolean;
-  onSubmit: () => void;
-}) {
+function StepConfirm({ booking, service, selectedAddOns, total, submitted, onSubmit }: { booking: Booking; service: Service | null; selectedAddOns: AddOn[]; total: number; submitted: boolean; onSubmit: () => void }) {
   const summary = buildSummary({ booking, service, selectedAddOns, total });
   const waUrl = `https://wa.me/${business.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
 
@@ -429,11 +425,7 @@ function StepConfirm({
           <Row k="Phone" v={booking.phone} />
           {booking.notes && <Row k="Notes" v={booking.notes} />}
         </dl>
-
-        <button
-          onClick={onSubmit}
-          className="mt-6 w-full rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-luxe"
-        >
+        <button onClick={onSubmit} className="mt-6 w-full rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-luxe">
           Send request via WhatsApp & pick my slot
         </button>
       </div>
@@ -450,19 +442,11 @@ function StepConfirm({
         Your request has been prepared. You'll receive confirmation once your deposit is verified.
         We'll follow up via WhatsApp the day before to confirm your appointment.
       </p>
-
       <div className="mt-6 flex flex-col gap-3">
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft"
-        >
+        <a href={waUrl} target="_blank" rel="noreferrer" className="rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft">
           Open WhatsApp to send proof & confirm
         </a>
-        <p className="text-xs text-muted-foreground">
-          Next: pick your preferred date & time on the calendar (next step).
-        </p>
+        <p className="text-xs text-muted-foreground">Next: pick your preferred date & time on the calendar (next step).</p>
       </div>
     </div>
   );
@@ -477,7 +461,6 @@ function Row({ k, v, bold }: { k: string; v: string; bold?: boolean }) {
   );
 }
 
-/* ---------------- STEP 6: Pick Slot via Google Calendar ---------------- */
 function StepSlot({ booking, service, total }: { booking: Booking; service: Service | null; total: number }) {
   const summary = buildSummary({ booking, service, selectedAddOns: addOns.filter((a) => booking.addOnIds.includes(a.id)), total });
   const waUrl = `https://wa.me/${business.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
@@ -493,7 +476,6 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
         After picking your slot, please <strong>add it to your phone's calendar</strong> so you don't
         forget — Google Calendar will send you a reminder.
       </p>
-
       <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-luxe">
         <iframe
           title="Book a slot with Tebo's Nail Heaven"
@@ -504,7 +486,6 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
           loading="lazy"
         />
       </div>
-
       <div className="mt-6 rounded-2xl border-2 border-gold bg-accent/15 p-5 text-sm">
         <p className="flex items-center gap-2 font-bold text-wine">
           <Sparkles className="h-4 w-4 text-gold" /> WhatsApp upload checklist
@@ -514,29 +495,19 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
           Your slot stays <em>pending</em> until each item is received.
         </p>
         <ul className="mt-3 space-y-2 text-sm text-foreground/90">
-          <ChecklistItem>📸 Screenshot of your Pay-to-Cell payment confirmation</ChecklistItem>
+          <ChecklistItem>📸 Screenshot of your payment confirmation</ChecklistItem>
           <ChecklistItem>🔖 Transaction reference (paste the exact code)</ChecklistItem>
           <ChecklistItem>💅 1–3 inspiration photos for your design</ChecklistItem>
           <ChecklistItem>🗓️ A screenshot of the calendar slot you just picked</ChecklistItem>
           <ChecklistItem>📱 Your full name &amp; the WhatsApp number you booked under</ChecklistItem>
         </ul>
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-full bg-wine px-5 py-2 text-xs font-semibold text-primary-foreground"
-        >
+        <a href={waUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-full bg-wine px-5 py-2 text-xs font-semibold text-primary-foreground">
           Open WhatsApp with summary pre-filled
         </a>
       </div>
-
       <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
-        <Link to="/status" className="font-semibold text-wine underline-offset-4 hover:underline">
-          Check booking status →
-        </Link>
-        <Link to="/" className="font-semibold text-wine/70 underline-offset-4 hover:underline">
-          Back to home
-        </Link>
+        <Link to="/status" className="font-semibold text-wine underline-offset-4 hover:underline">Check booking status →</Link>
+        <Link to="/" className="font-semibold text-wine/70 underline-offset-4 hover:underline">Back to home</Link>
       </div>
     </div>
   );
@@ -551,17 +522,7 @@ function ChecklistItem({ children }: { children: React.ReactNode }) {
   );
 }
 
-function buildSummary({
-  booking,
-  service,
-  selectedAddOns,
-  total,
-}: {
-  booking: Booking;
-  service: Service | null;
-  selectedAddOns: AddOn[];
-  total: number;
-}) {
+function buildSummary({ booking, service, selectedAddOns, total }: { booking: Booking; service: Service | null; selectedAddOns: AddOn[]; total: number }) {
   return [
     `Hi Tebo! New booking request (pending verification):`,
     ``,
