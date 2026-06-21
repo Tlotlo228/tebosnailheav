@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Heart } from "lucide-react";
-
-const heroUrl = "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9";
+const heroAsset = { url: "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9" };
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -25,7 +24,7 @@ function About() {
 
       <div className="mt-12 grid gap-10 md:grid-cols-2 md:items-center">
         <img
-          src={heroUrl}
+          src={heroAsset.url}
           alt="Tebo's nail work"
           loading="lazy"
           className="aspect-[3/4] w-full rounded-3xl object-cover shadow-luxe"
