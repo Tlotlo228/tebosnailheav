@@ -33,5 +33,5 @@ export const business = {
     clientsServed: 1200,
     rating: 4.9,
   },
-  bookingEmbedUrl:
-  bookingEmbedUrl: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ1W7FLd7QNWhruyqWof_L1WoMzuXqtY4PXYI32JyuiMr9o9nkqGBgcnJiq6VE_BTLZk7Q6f7WRh?gv=true",
+  bookingEmbedUrl:"https://calendar.google.com/calendar/appointments/schedules/AcZssZ1W7FLd7QNWhruyqWof_L1WoMzuXqtY4PXYI32JyuiMr9o9nkqGBgcnJiq6VE_BTLZk7Q6f7WRh?gv=true",
+ 
