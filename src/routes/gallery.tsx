@@ -1,23 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { X } from "lucide-react";
-const g1 = { url: "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9" };
-const g2 = { url: "https://drive.google.com/uc?export=view&id=1Glb1ba18HyGobwdB1cBM8BtKjb6IfO0Y" };
-const g3 = { url: "https://drive.google.com/uc?export=view&id=1j4OimcZWJTICkpzNq5Jpa-VVgC5jHB2V" };
-const g4 = { url: "https://drive.google.com/uc?export=view&id=1g1ilPHs9zgpLGdgUAfW9M9o4sbPt1WbX" };
-const g5 = { url: "https://drive.google.com/uc?export=view&id=1KWxSpMNX0pkuQc3rxX0E2Ma8S9NuakPr" };
+
+const IMG = {
+  img1: "https://i.postimg.cc/qB3WG9zC/Whats-App-Image-2026-06-21-at-11-48-48-(1).jpg",
+  img2: "https://i.postimg.cc/y6Z2TwkF/Whats-App-Image-2026-06-21-at-11-48-48-(2).jpg",
+  img3: "https://i.postimg.cc/MZQgYhv0/Whats-App-Image-2026-06-21-at-11-48-48-(3).jpg",
+  img4: "https://i.postimg.cc/jq7BhGLQ/Whats-App-Image-2026-06-21-at-11-48-48-(4).jpg",
+  img5: "https://i.postimg.cc/zDg4k9VC/Whats-App-Image-2026-06-21-at-11-48-48-(5).jpg",
+};
 
 type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" };
 
 const items: Item[] = [
-  { url: g1.url, alt: "Pink & white French gel with gold trim", category: "Gel" },
-  { url: g2.url, alt: "Deep red marble gel extensions", category: "Gel" },
-  { url: g3.url, alt: "Red ombré almond polygel", category: "Polygel" },
-  { url: g4.url, alt: "Glossy magenta gel manicure", category: "Color" },
-  { url: g5.url, alt: "Lilac purple gel manicure", category: "Color" },
-  { url: g1.url, alt: "French tip gel set", category: "Gel" },
-  { url: g3.url, alt: "Almond polygel set", category: "Polygel" },
-  { url: g2.url, alt: "Burgundy marble nails", category: "Gel" },
+  { url: IMG.img1, alt: "Pink & white French gel with gold trim", category: "Gel" },
+  { url: IMG.img2, alt: "Deep red marble gel extensions", category: "Gel" },
+  { url: IMG.img3, alt: "Red ombré almond polygel", category: "Polygel" },
+  { url: IMG.img4, alt: "Glossy magenta gel manicure", category: "Color" },
+  { url: IMG.img5, alt: "Lilac purple gel manicure", category: "Color" },
+  { url: IMG.img1, alt: "French tip gel set", category: "Gel" },
+  { url: IMG.img3, alt: "Almond polygel set", category: "Polygel" },
+  { url: IMG.img2, alt: "Burgundy marble nails", category: "Gel" },
 ];
 
 const categories = ["All", "Gel", "Polygel", "Color"] as const;
@@ -29,7 +32,7 @@ export const Route = createFileRoute("/gallery")({
       { name: "description", content: "Recent nail sets — gel, polygel, and color manicures by Tebo." },
       { property: "og:title", content: "Gallery — Tebo's Nail Heaven" },
       { property: "og:description", content: "Browse recent nail art and lash sets." },
-      { property: "og:image", content: g1.url },
+      { property: "og:image", content: IMG.img1 },
     ],
   }),
   component: Gallery,
