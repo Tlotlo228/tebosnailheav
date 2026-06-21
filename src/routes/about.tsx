@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Heart } from "lucide-react";
-const heroAsset = { url: "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9" };
+
+const heroUrl = "https://i.postimg.cc/qB3WG9zC/Whats-App-Image-2026-06-21-at-11-48-48-(1).jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -21,28 +22,14 @@ function About() {
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">About</p>
         <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">Meet Tebo</h1>
       </header>
-
       <div className="mt-12 grid gap-10 md:grid-cols-2 md:items-center">
-        <img
-          src={heroAsset.url}
-          alt="Tebo's nail work"
-          loading="lazy"
-          className="aspect-[3/4] w-full rounded-3xl object-cover shadow-luxe"
-        />
+        <img src={heroUrl} alt="Tebo's nail work" loading="lazy" className="aspect-[3/4] w-full rounded-3xl object-cover shadow-luxe" />
         <div>
           <h2 className="font-script text-3xl text-wine">The alluring beauty care</h2>
-          <p className="mt-4 text-foreground/85">
-            Tebo's Nail Heaven was born from a love of detail and the belief that every woman
-            deserves to feel taken care of. From classic French tips to chrome marble combos,
-            every set is hand-crafted in a calm, sanitised studio in Gaborone.
-          </p>
-          <p className="mt-3 text-foreground/85">
-            Five years in, and over a thousand clients later, the philosophy hasn't changed:
-            premium products, generous time, no rushing — and finishes that last.
-          </p>
+          <p className="mt-4 text-foreground/85">Tebo's Nail Heaven was born from a love of detail and the belief that every woman deserves to feel taken care of. From classic French tips to chrome marble combos, every set is hand-crafted in a calm, sanitised studio in Gaborone.</p>
+          <p className="mt-3 text-foreground/85">Five years in, and over a thousand clients later, the philosophy hasn't changed: premium products, generous time, no rushing — and finishes that last.</p>
         </div>
       </div>
-
       <div className="mt-16 grid gap-5 md:grid-cols-3">
         <Feature icon={<Sparkles className="h-6 w-6" />} title="Premium products" body="Top-tier gel, polygel and lash brands — no shortcuts." />
         <Feature icon={<ShieldCheck className="h-6 w-6" />} title="Strict hygiene" body="Single-use files, sanitised tools, autoclave-clean implements." />
