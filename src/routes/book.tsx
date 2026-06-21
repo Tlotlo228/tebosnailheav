@@ -302,14 +302,31 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
         <span className="font-semibold text-wine">P{business.depositAmount}</span>
       </p>
 
-      <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Mobile Money</p>
-        <div className="mt-3 space-y-2 text-sm">
-          <CopyRow label="Provider" value={business.bankDetails.mobileMoneyProvider} copied={copied === "p"} onCopy={() => copy(business.bankDetails.mobileMoneyProvider, "p")} />
-          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyNumber, "n")} />
-          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "a"} onCopy={() => copy(business.bankDetails.accountName, "a")} />
-          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt"} onCopy={() => copy(String(business.depositAmount), "amt")} />
-        </div>
+     <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
+  <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Mobile Money / eWallet</p>
+  <div className="mt-3 space-y-2 text-sm">
+    <CopyRow label="Provider" value={business.bankDetails.mobileMoneyProvider} copied={copied === "p"} onCopy={() => copy(business.bankDetails.mobileMoneyProvider, "p")} />
+    <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyNumber, "n")} />
+    <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "a"} onCopy={() => copy(business.bankDetails.accountName, "a")} />
+    <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt"} onCopy={() => copy(String(business.depositAmount), "amt")} />
+  </div>
+  <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
+    <li>Dial your Pay to Cell / eWallet USSD or open your banking app.</li>
+    <li>Send <strong>P{business.depositAmount}</strong> to <strong>{business.bankDetails.mobileMoneyNumber}</strong>.</li>
+    <li>Copy the reference/confirmation code you receive.</li>
+  </ol>
+</div>
+
+<div className="mt-4 rounded-2xl border border-gold/40 bg-accent/10 p-5">
+  <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Absa Bank Transfer</p>
+  <div className="mt-3 space-y-2 text-sm">
+    <CopyRow label="Bank" value={business.bankDetails.bankName} copied={copied === "bank"} onCopy={() => copy(business.bankDetails.bankName, "bank")} />
+    <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "aname"} onCopy={() => copy(business.bankDetails.accountName, "aname")} />
+    <CopyRow label="Account number" value={business.bankDetails.accountNumber} copied={copied === "acc"} onCopy={() => copy(business.bankDetails.accountNumber, "acc")} />
+    <CopyRow label="Branch" value={business.bankDetails.branchName} copied={copied === "branch"} onCopy={() => copy(business.bankDetails.branchName, "branch")} />
+    <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt2"} onCopy={() => copy(String(business.depositAmount), "amt2")} />
+  </div>
+</div>
         <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
           <li>Open your mobile money app or dial your provider's USSD.</li>
           <li>Send <strong>P{business.depositAmount}</strong> to <strong>{business.bankDetails.mobileMoneyNumber}</strong>.</li>
