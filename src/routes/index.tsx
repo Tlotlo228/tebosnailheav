@@ -1,14 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Star, Sparkles, Calendar, Award } from "lucide-react";
 import { business, services, reviews } from "@/lib/site-data";
-
-const IMG = {
-  img1: "https://i.postimg.cc/qB3WG9zC/Whats-App-Image-2026-06-21-at-11-48-48-(1).jpg",
-  img2: "https://i.postimg.cc/y6Z2TwkF/Whats-App-Image-2026-06-21-at-11-48-48-(2).jpg",
-  img3: "https://i.postimg.cc/MZQgYhv0/Whats-App-Image-2026-06-21-at-11-48-48-(3).jpg",
-  img4: "https://i.postimg.cc/jq7BhGLQ/Whats-App-Image-2026-06-21-at-11-48-48-(4).jpg",
-  img5: "https://i.postimg.cc/zDg4k9VC/Whats-App-Image-2026-06-21-at-11-48-48-(5).jpg",
-};
+const heroAsset = { url: "https://drive.google.com/uc?export=view&id=1jpffaJOBNdhsSxmzM6hA8JC6eHWa8vy9" };
+const g1 = { url: "https://drive.google.com/uc?export=view&id=1Glb1ba18HyGobwdB1cBM8BtKjb6IfO0Y" };
+const g2 = { url: "https://drive.google.com/uc?export=view&id=1j4OimcZWJTICkpzNq5Jpa-VVgC5jHB2V" };
+const g3 = { url: "https://drive.google.com/uc?export=view&id=1g1ilPHs9zgpLGdgUAfW9M9o4sbPt1WbX" };
+const g4 = { url: "https://drive.google.com/uc?export=view&id=1KWxSpMNX0pkuQc3rxX0E2Ma8S9NuakPr" };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,7 +14,7 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Premium gel nails, polygel extensions and cluster lashes by Tebo. Book online — P50 secures your slot." },
       { property: "og:title", content: "Tebo's Nail Heaven" },
       { property: "og:description", content: "the alluring beauty care — premium gel, polygel & lashes in Gaborone." },
-      { property: "og:image", content: IMG.img1 },
+      { property: "og:image", content: heroAsset.url },
     ],
     scripts: [
       {
@@ -26,7 +23,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "BeautySalon",
           name: business.name,
-          image: IMG.img1,
+          image: heroAsset.url,
           telephone: business.whatsapp,
           address: { "@type": "PostalAddress", addressLocality: business.address, addressCountry: "BW" },
           priceRange: "P50 – P420",
@@ -40,10 +37,11 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const featured = [services[2], services[14], services[31]];
-  const gallery = [IMG.img1, IMG.img2, IMG.img3, IMG.img4];
+  const gallery = [g1, g2, g3, g4];
 
   return (
     <div>
+      {/* HERO */}
       <section className="relative overflow-hidden bg-hero">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-12 md:grid-cols-2 md:pt-20">
           <div>
@@ -59,20 +57,33 @@ function Home() {
               as you look. By appointment in Gaborone.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/book" className="rounded-full bg-wine px-7 py-3 text-sm font-semibold text-primary-foreground shadow-luxe transition-transform hover:scale-105">
+              <Link
+                to="/book"
+                className="rounded-full bg-wine px-7 py-3 text-sm font-semibold text-primary-foreground shadow-luxe transition-transform hover:scale-105"
+              >
                 Book Now
               </Link>
-              <Link to="/services" className="rounded-full border border-wine/30 bg-background px-7 py-3 text-sm font-semibold text-wine hover:bg-secondary">
+              <Link
+                to="/services"
+                className="rounded-full border border-wine/30 bg-background px-7 py-3 text-sm font-semibold text-wine hover:bg-secondary"
+              >
                 View Services
               </Link>
             </div>
           </div>
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-[2.5rem] bg-gold opacity-20 blur-2xl" />
-            <img src={IMG.img1} alt="Premium pink and white French gel nails with gold trim by Tebo's Nail Heaven" className="aspect-[3/4] w-full rounded-[2rem] object-cover shadow-luxe" width={900} height={1200} />
+            <img
+              src={heroAsset.url}
+              alt="Premium pink and white French gel nails with gold trim by Tebo's Nail Heaven"
+              className="aspect-[3/4] w-full rounded-[2rem] object-cover shadow-luxe"
+              width={900}
+              height={1200}
+            />
           </div>
         </div>
 
+        {/* TRUST STRIP */}
         <div className="border-y border-border bg-background/60">
           <div className="mx-auto grid max-w-6xl grid-cols-3 gap-4 px-4 py-6 text-center">
             <Stat icon={<Award className="h-5 w-5" />} value={`${business.stats.yearsExperience}+`} label="Years" />
@@ -82,11 +93,17 @@ function Home() {
         </div>
       </section>
 
+      {/* FEATURED SERVICES */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <SectionHeader eyebrow="Signature Services" title="Booked & loved" />
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {featured.map((s) => (
-            <Link key={s.id} to="/book" search={{ service: s.id }} className="group rounded-3xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-luxe">
+            <Link
+              key={s.id}
+              to="/book"
+              search={{ service: s.id }}
+              className="group rounded-3xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-luxe"
+            >
               <p className="text-xs uppercase tracking-widest text-gold">{s.category.split("—")[0].trim()}</p>
               <h3 className="mt-2 text-xl font-semibold text-wine">{s.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.description}</p>
@@ -98,24 +115,38 @@ function Home() {
           ))}
         </div>
         <div className="mt-8 text-center">
-          <Link to="/services" className="text-sm font-semibold text-wine underline-offset-4 hover:underline">See full menu →</Link>
+          <Link to="/services" className="text-sm font-semibold text-wine underline-offset-4 hover:underline">
+            See full menu →
+          </Link>
         </div>
       </section>
 
+      {/* GALLERY PREVIEW */}
       <section className="bg-secondary/40 py-20">
         <div className="mx-auto max-w-6xl px-4">
           <SectionHeader eyebrow="Our Work" title="Recent sets" />
           <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {gallery.map((url, i) => (
-              <img key={i} src={url} alt="Nail art by Tebo's Nail Heaven" loading="lazy" className="aspect-square w-full rounded-2xl object-cover shadow-soft transition-transform hover:scale-[1.02]" width={600} height={600} />
+            {gallery.map((img, i) => (
+              <img
+                key={i}
+                src={img.url}
+                alt="Nail art by Tebo's Nail Heaven"
+                loading="lazy"
+                className="aspect-square w-full rounded-2xl object-cover shadow-soft transition-transform hover:scale-[1.02]"
+                width={600}
+                height={600}
+              />
             ))}
           </div>
           <div className="mt-8 text-center">
-            <Link to="/gallery" className="text-sm font-semibold text-wine underline-offset-4 hover:underline">See full gallery →</Link>
+            <Link to="/gallery" className="text-sm font-semibold text-wine underline-offset-4 hover:underline">
+              See full gallery →
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* REVIEWS PREVIEW */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <SectionHeader eyebrow="Client Love" title="What they're saying" />
         <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -133,12 +164,19 @@ function Home() {
         </div>
       </section>
 
+      {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
         <div className="overflow-hidden rounded-3xl bg-wine p-10 text-center text-primary-foreground shadow-luxe md:p-16">
           <Calendar className="mx-auto h-10 w-10 text-accent" />
           <h2 className="mt-4 font-script text-4xl text-accent md:text-5xl">Ready for your set?</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm opacity-85">Slots fill fast — secure yours with a P{business.depositAmount} deposit and we'll confirm via WhatsApp.</p>
-          <Link to="/book" className="mt-7 inline-block rounded-full bg-accent px-8 py-3 text-sm font-semibold text-accent-foreground shadow-soft transition-transform hover:scale-105">
+          <p className="mx-auto mt-3 max-w-md text-sm opacity-85">
+            Slots fill fast — secure yours with a P{business.depositAmount} deposit and we'll
+            confirm via WhatsApp.
+          </p>
+          <Link
+            to="/book"
+            className="mt-7 inline-block rounded-full bg-accent px-8 py-3 text-sm font-semibold text-accent-foreground shadow-soft transition-transform hover:scale-105"
+          >
             Book Your Appointment
           </Link>
         </div>
