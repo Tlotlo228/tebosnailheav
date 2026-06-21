@@ -281,6 +281,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
+/* ---------------- STEP 4: Deposit ---------------- */
 function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booking) => void; total: number }) {
   const [copied, setCopied] = useState<string | null>(null);
   const copy = (val: string, k: string) => {
@@ -297,29 +298,34 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
       </p>
 
       <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Mobile Money / eWallet</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Bank transfer</p>
+        <div className="mt-3 space-y-2 text-sm">
+          <CopyRow label="Bank" value={business.bankDetails.bankName} copied={copied === "bank"} onCopy={() => copy(business.bankDetails.bankName, "bank")} />
+          <CopyRow label="Acc no." value={business.bankDetails.accountNumber} copied={copied === "acc"} onCopy={() => copy(business.bankDetails.accountNumber, "acc")} />
+          <CopyRow label="Branch" value={business.bankDetails.branch} copied={copied === "branch"} onCopy={() => copy(business.bankDetails.branch, "branch")} />
+          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "name"} onCopy={() => copy(business.bankDetails.accountName, "name")} />
+          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt-bank"} onCopy={() => copy(String(business.depositAmount), "amt-bank")} />
+        </div>
+        <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
+          <li>Log in to your Absa online banking or app.</li>
+          <li>Transfer <strong>P{business.depositAmount}</strong> to account <strong>{business.bankDetails.accountNumber}</strong> ({business.bankDetails.branch} branch).</li>
+          <li>Save the proof of payment / reference for the next step.</li>
+        </ol>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay-to-Cell / eWallet</p>
         <div className="mt-3 space-y-2 text-sm">
           <CopyRow label="Provider" value={business.bankDetails.mobileMoneyProvider} copied={copied === "p"} onCopy={() => copy(business.bankDetails.mobileMoneyProvider, "p")} />
-          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyNumber, "n")} />
+          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyRaw, "n")} />
           <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "a"} onCopy={() => copy(business.bankDetails.accountName, "a")} />
           <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt"} onCopy={() => copy(String(business.depositAmount), "amt")} />
         </div>
         <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
-          <li>Dial your Pay to Cell / eWallet USSD or open your banking app.</li>
+          <li>Open your mobile banking app or dial your provider's USSD.</li>
           <li>Send <strong>P{business.depositAmount}</strong> to <strong>{business.bankDetails.mobileMoneyNumber}</strong>.</li>
           <li>Copy the reference/confirmation code you receive.</li>
         </ol>
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay via Absa Bank Transfer</p>
-        <div className="mt-3 space-y-2 text-sm">
-          <CopyRow label="Bank" value={business.bankDetails.bankName} copied={copied === "bank"} onCopy={() => copy(business.bankDetails.bankName, "bank")} />
-          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "aname"} onCopy={() => copy(business.bankDetails.accountName, "aname")} />
-          <CopyRow label="Account number" value={business.bankDetails.accountNumber} copied={copied === "acc"} onCopy={() => copy(business.bankDetails.accountNumber, "acc")} />
-          <CopyRow label="Branch" value={business.bankDetails.branchName} copied={copied === "branch"} onCopy={() => copy(business.bankDetails.branchName, "branch")} />
-          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt2"} onCopy={() => copy(String(business.depositAmount), "amt2")} />
-        </div>
       </div>
 
       <div className="mt-6 grid gap-4">
@@ -331,7 +337,7 @@ function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booki
             placeholder="e.g. PTC-AX2389 (letters & numbers both OK)"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            The unique code from your Pay-to-Cell confirmation SMS. Letters, numbers or dashes —
+            The unique code from your Pay-to-Cell confirmation SMS or bank transfer reference. Letters, numbers or dashes —
             paste it exactly as you received it.
           </p>
         </Field>
@@ -489,7 +495,7 @@ function StepSlot({ booking, service, total }: { booking: Booking; service: Serv
           Your slot stays <em>pending</em> until each item is received.
         </p>
         <ul className="mt-3 space-y-2 text-sm text-foreground/90">
-          <ChecklistItem>📸 Screenshot of your Pay-to-Cell payment confirmation</ChecklistItem>
+          <ChecklistItem>📸 Screenshot of your payment confirmation</ChecklistItem>
           <ChecklistItem>🔖 Transaction reference (paste the exact code)</ChecklistItem>
           <ChecklistItem>💅 1–3 inspiration photos for your design</ChecklistItem>
           <ChecklistItem>🗓️ A screenshot of the calendar slot you just picked</ChecklistItem>
