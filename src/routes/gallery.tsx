@@ -8,6 +8,11 @@ const IMG = {
   img3: "https://i.postimg.cc/MZQgYhv0/Whats-App-Image-2026-06-21-at-11-48-48-(3).jpg",
   img4: "https://i.postimg.cc/jq7BhGLQ/Whats-App-Image-2026-06-21-at-11-48-48-(4).jpg",
   img5: "https://i.postimg.cc/zDg4k9VC/Whats-App-Image-2026-06-21-at-11-48-48-(5).jpg",
+  img6: "https://i.postimg.cc/mgwbsVF2/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
+  img7: "https://i.postimg.cc/VNZmS6RW/c445313a-b5b1-4924-9236-5d4e85f6c3c0.jpg",
+  img8: "https://i.postimg.cc/NMvbk8pt/2ce392ff-8fff-49ad-8d6f-d47ed0484db6.jpg",
+  img9: "https://i.postimg.cc/qv9GpXfY/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
+  img10: "https://i.postimg.cc/hjRM18pg/d413edce-8530-4155-af5e-8730a35bafe3.jpg",
 };
 
 type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" };
@@ -18,9 +23,11 @@ const items: Item[] = [
   { url: IMG.img3, alt: "Red ombré almond polygel", category: "Polygel" },
   { url: IMG.img4, alt: "Glossy magenta gel manicure", category: "Color" },
   { url: IMG.img5, alt: "Lilac purple gel manicure", category: "Color" },
-  { url: IMG.img1, alt: "French tip gel set", category: "Gel" },
-  { url: IMG.img3, alt: "Almond polygel set", category: "Polygel" },
-  { url: IMG.img2, alt: "Burgundy marble nails", category: "Gel" },
+  { url: IMG.img6, alt: "Nail art by Tebo's Nail Heaven", category: "Gel" },
+  { url: IMG.img7, alt: "Nail art by Tebo's Nail Heaven", category: "Polygel" },
+  { url: IMG.img8, alt: "Nail art by Tebo's Nail Heaven", category: "Color" },
+  { url: IMG.img9, alt: "Nail art by Tebo's Nail Heaven", category: "Gel" },
+  { url: IMG.img10, alt: "Nail art by Tebo's Nail Heaven", category: "Polygel" },
 ];
 
 const categories = ["All", "Gel", "Polygel", "Color"] as const;
