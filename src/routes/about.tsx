@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sparkles, ShieldCheck, Heart } from "lucide-react";
 
-const heroUrl = ""https://i.postimg.cc/ZRMWzhk8/IMG-20260622-WA0014.jpg"";
+const heroUrl = "https://i.postimg.cc/ZRMWzhk8/IMG-20260622-WA0014.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
