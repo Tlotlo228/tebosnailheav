@@ -29,6 +29,7 @@ const items: Item[] = [
   { url: IMG.img8, alt: "Nail art by Tebo's Nail Heaven", category: "Color" },
   { url: IMG.img9, alt: "Nail art by Tebo's Nail Heaven", category: "Gel" },
   { url: IMG.img10, alt: "Nail art by Tebo's Nail Heaven", category: "Polygel" },
+  { url: IMG.img11, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
 ];
 
 const categories = ["All", "Gel", "Polygel", "Color"] as const;
