@@ -13,6 +13,7 @@ const IMG = {
   img8: "https://i.postimg.cc/NMvbk8pt/2ce392ff-8fff-49ad-8d6f-d47ed0484db6.jpg",
   img9: "https://i.postimg.cc/qv9GpXfY/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
   img10: "https://i.postimg.cc/hjRM18pg/d413edce-8530-4155-af5e-8730a35bafe3.jpg",
+  img11: "https://i.postimg.cc/ZRMWzhk8/IMG-20260622-WA0014.jpg",
 };
 
 type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" };
