@@ -40,7 +40,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const featured = [services[2], services[14], services[31]];
-  const gallery = [IMG.img1, IMG.img2, IMG.img3, IMG.img4];
+  const gallery = [IMG.img1, IMG.img2, IMG.img3, IMG.img4 ];
 
   return (
     <div>
