@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import logoAsset from "@/assets/logo.png";
 import { business } from "@/lib/site-data";
+import { useLocation } from "@tanstack/react-router";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -18,17 +19,19 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
+const location = useLocation();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
+useEffect(() => {
+  setOpen(false);
+}, [location.pathname]);
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all ${
+<header
+  className={`sticky top-0 z-40 transition-all ${
         scrolled ? "glass shadow-soft" : "bg-transparent"
       }`}
     >
@@ -66,8 +69,7 @@ export function Header() {
 
       {/* Mobile drawer */}
       <div
-        className={`fixed inset-0 z-50 md:hidden ${open ? "" : "pointer-events-none"}`}
-        aria-hidden={!open}
+  className={`fixed inset-0 z-[100] md:hidden ${open ? "" : "pointer-events-none"}`}
       >
         <div
           className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
