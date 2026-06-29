@@ -67,8 +67,27 @@ function BookingPage() {
     return true;
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const next = () => {
+  setStep((s) => Math.min(s + 1, steps.length - 1));
+
+  setTimeout(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, 50);
+};
+
+const back = () => {
+  setStep((s) => Math.max(s - 1, 0));
+
+  setTimeout(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, 50);
+};
 
   return (
     <div className={`mx-auto px-4 py-10 ${step === 5 ? "max-w-6xl" : "max-w-3xl"}`}>
