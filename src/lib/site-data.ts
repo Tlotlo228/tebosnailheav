@@ -11,7 +11,7 @@ export const business = {
   name: "Tebo's Nail Heaven",
   tagline: "the alluring beauty care",
   type: "Nail & Lash Studio",
-  whatsapp: "+2677981109",
+  whatsapp: "+26777981109",
   whatsappDisplay: "+267 77 981 109",
   email: "tebodimakatso@icloud.com",
   address: "Gaborone, Botswana",
