@@ -15,7 +15,7 @@ export const business = {
   whatsappDisplay: "+267 77 874 024",
   email: "hello@tebosnailheaven.co.bw",
   address: "Gaborone, Botswana",
-  hours: "Mon – Sat · 9:00 – 18:00 · Sun by appointment",
+  hours: "Mon – Sat · 8:00 – 18:00 · Sun by appointment",
   instagram: "tebos_nail_heaven",
   instagramUrl: "https://instagram.com/tebos_nail_heaven",
   currency: "P",
