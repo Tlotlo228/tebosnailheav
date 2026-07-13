@@ -94,8 +94,7 @@ export const services: Service[] = [
   description: "Professional foot scrub treatment.",
   duration: 60,
   price: 200,
-  image: "https://i.postimg.cc/50SLmr7y/3adb0924-04b4-406d-855b-fb60d7dc7176.jpg",
-},
+  },
 
   // ----- MAKE UP -----
   {
@@ -124,7 +123,7 @@ export const services: Service[] = [
   description: "Professional hair installation.",
   duration: 120,
   price: 200,
-  image: "https://i.postimg.cc/brFGCfQw/fd19ec2d-91b6-4ee8-9a93-fa76054e5aa5.jpg",
+image: "https://i.postimg.cc/50SLmr7y/3adb0924-04b4-406d-855b-fb60d7dc7176.jpg",
 },
 ];
 
