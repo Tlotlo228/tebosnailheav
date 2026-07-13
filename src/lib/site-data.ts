@@ -113,6 +113,15 @@ export const services: Service[] = [
     duration: 120,
     price: 350,
   },
+    // ----- HAIR -----
+  {
+    id: "hair-installation",
+    category: "Hair",
+    name: "Hair Installation",
+    description: "Professional hair installation for a neat, secure and natural-looking finish.",
+    duration: 120,
+    price: 200,
+  },
 ];
 
 export const addOns = [
