@@ -14,9 +14,14 @@ const IMG = {
   img9: "https://i.postimg.cc/qv9GpXfY/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
   img10: "https://i.postimg.cc/hjRM18pg/d413edce-8530-4155-af5e-8730a35bafe3.jpg",
   img11: "https://i.postimg.cc/ZRMWzhk8/IMG-20260622-WA0014.jpg",
+  img12: "https://i.postimg.cc/brFGCfQw/fd19ec2d-91b6-4ee8-9a93-fa76054e5aa5.jpg",
+  img13: "https://i.postimg.cc/g2hwD5r8/54f44b8f-66d6-4cbc-8ecb-3a2a2525cb0e.jpg",
+  img14: "https://i.postimg.cc/W3TJtnNz/3283555f-1de0-466f-977f-b95246be3cc2.jpg",
+  img15: "https://i.postimg.cc/ZKM3jpHk/52330ab7-8cea-43db-9171-7454cdc59ad4.jpg",
+  img16: "https://i.postimg.cc/50SLmr7y/3adb0924-04b4-406d-855b-fb60d7dc7176.jpg",
 };
 
-type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" };
+type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color"  | "Pedicure" | "Makep-up" | "Hair" |};
 
 const items: Item[] = [
   { url: IMG.img1, alt: "Pink & white French gel with gold trim", category: "Gel" },
@@ -30,6 +35,11 @@ const items: Item[] = [
   { url: IMG.img9, alt: "Nail art by Tebo's Nail Heaven", category: "Gel" },
   { url: IMG.img10, alt: "Nail art by Tebo's Nail Heaven", category: "Polygel" },
   { url: IMG.img11, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
+  { url: IMG.img12, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
+  { url: IMG.img13, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
+  { url: IMG.img14, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
+  { url: IMG.img15, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
+  { url: IMG.img16, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
 ];
 
 const categories = ["All", "Gel", "Polygel", "Color"] as const;
