@@ -85,6 +85,34 @@ export const services: Service[] = [
   { id: "lash-open-hybrid", category: "Cluster Lashes — Open Eye Looks", name: "Open Eye · Hybrid", description: "Eye-opening hybrid cluster set.", duration: 60, price: 230 },
   { id: "lash-open-volume", category: "Cluster Lashes — Open Eye Looks", name: "Open Eye · Volume", description: "Eye-opening volume cluster set.", duration: 70, price: 250 },
   { id: "lash-removal", category: "Cluster Lashes — Removal", name: "Lash Removal", description: "Gentle, safe cluster lash removal.", duration: 20, price: 50 },
+    // ----- PEDICURE -----
+  {
+    id: "pedicure-foot-scrubbing",
+    category: "Pedicure",
+    name: "Foot Scrubbing",
+    description: "Professional foot scrub treatment leaving your feet soft, smooth and refreshed.",
+    duration: 60,
+    price: 200,
+  },
+
+  // ----- MAKE UP -----
+  {
+    id: "makeup-soft-glam",
+    category: "Make Up",
+    name: "Soft Glam",
+    description: "Elegant soft glam makeup perfect for everyday events and special occasions.",
+    duration: 90,
+    price: 250,
+  },
+
+  {
+    id: "makeup-full-glam",
+    category: "Make Up",
+    name: "Full Glam",
+    description: "Full coverage glamorous makeup for weddings, parties and photoshoots.",
+    duration: 120,
+    price: 350,
+  },
 ];
 
 export const addOns = [
