@@ -29,6 +29,13 @@ const location = useLocation();
 useEffect(() => {
   setOpen(false);
 }, [location.pathname]);
+  useEffect(() => {
+  document.body.style.overflow = open ? "hidden" : "";
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [open]);
   return (
 <header
   className={`sticky top-0 z-40 transition-all ${
@@ -67,46 +74,51 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Mobile drawer */}
-      <div
-  className={`fixed inset-0 z-[100] md:hidden ${open ? "" : "pointer-events-none"}`}
-      >
-        <div
-          className={`absolute inset-0 bg-black/40 transition-opacity ${open ? "opacity-100" : "opacity-0"}`}
+    {/* Mobile drawer */}
+{open && (
+  <div className="fixed inset-0 z-[100] md:hidden">
+    <div
+      className="absolute inset-0 bg-black/40"
+      onClick={() => setOpen(false)}
+    />
+
+    <aside className="absolute right-0 top-0 h-full w-[82%] max-w-sm bg-background p-6 shadow-luxe">
+      <div className="mb-8 flex items-center justify-between">
+        <img src={logoAsset} alt="" className="h-10 w-auto" />
+        <button
+          aria-label="Close menu"
           onClick={() => setOpen(false)}
-        />
-        <aside
-          className={`absolute right-0 top-0 h-full w-[82%] max-w-sm bg-background p-6 shadow-luxe transition-transform ${open ? "translate-x-0" : "translate-x-full"}`}
+          className="rounded-md p-2"
         >
-          <div className="mb-8 flex items-center justify-between">
-            <img src={logoAsset} alt="" className="h-10 w-auto" />
-            <button aria-label="Close menu" onClick={() => setOpen(false)} className="rounded-md p-2">
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-lg font-medium text-foreground/90 hover:bg-secondary"
-                activeProps={{ className: "text-primary bg-secondary" }}
-                activeOptions={{ exact: l.to === "/" }}
-              >
-                {l.label}
-              </Link>
-            ))}
-            <Link
-              to="/book"
-              onClick={() => setOpen(false)}
-              className="mt-4 rounded-full bg-wine px-5 py-3 text-center text-base font-semibold text-primary-foreground shadow-soft"
-            >
-              Book Now
-            </Link>
-          </nav>
-        </aside>
+          <X className="h-6 w-6" />
+        </button>
       </div>
+
+      <nav className="flex flex-col gap-1">
+        {navLinks.map((l) => (
+          <Link
+            key={l.to}
+            to={l.to}
+            onClick={() => setOpen(false)}
+            className="rounded-lg px-3 py-3 text-lg font-medium text-foreground/90 hover:bg-secondary"
+            activeProps={{ className: "text-primary bg-secondary" }}
+            activeOptions={{ exact: l.to === "/" }}
+          >
+            {l.label}
+          </Link>
+        ))}
+
+        <Link
+          to="/book"
+          onClick={() => setOpen(false)}
+          className="mt-4 rounded-full bg-wine px-5 py-3 text-center text-base font-semibold text-primary-foreground shadow-soft"
+        >
+          Book Now
+        </Link>
+      </nav>
+    </aside>
+  </div>
+)}
     </header>
   );
 }
