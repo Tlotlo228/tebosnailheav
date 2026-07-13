@@ -36,21 +36,37 @@ function ServicesPage() {
             <div className="mt-4 divide-y divide-border rounded-3xl border border-border bg-card shadow-soft">
               {items.map((s) => (
                 <Link
-                  key={s.id}
-                  to="/book"
-                  search={{ service: s.id }}
-                  className="flex items-center justify-between gap-4 p-5 transition-colors hover:bg-secondary/60"
-                >
-                  <div className="min-w-0">
-                    <p className="font-semibold text-wine">{s.name}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
-                    
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-xl font-bold text-wine">P{s.price}</span>
-                    <span className="mt-1 text-xs font-semibold text-gold">Book →</span>
-                  </div>
-                </Link>
+  key={s.id}
+  to="/book"
+  search={{ service: s.id }}
+  className="flex items-center justify-between gap-4 p-5 transition-colors hover:bg-secondary/60"
+>
+  <div className="flex items-center gap-4">
+    {s.image && (
+      <img
+        src={s.image}
+        alt={s.name}
+        className="h-20 w-20 rounded-2xl object-cover"
+      />
+    )}
+
+    <div className="min-w-0">
+      <p className="font-semibold text-wine">{s.name}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {s.description}
+      </p>
+    </div>
+  </div>
+
+  <div className="flex flex-col items-end">
+    <span className="text-xl font-bold text-wine">
+      P{s.price}
+    </span>
+    <span className="mt-1 text-xs font-semibold text-gold">
+      Book →
+    </span>
+  </div>
+</Link>
               ))}
             </div>
           </section>
