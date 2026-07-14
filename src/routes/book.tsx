@@ -34,7 +34,14 @@ type Booking = {
   agreed: boolean;
 };
 
-const steps = ["Service", "Add-ons", "Details", "Deposit", "Confirm", "Pick slot"] as const;
+const steps = [
+  "Service",
+  "Add-ons",
+  "Details",
+  "Deposit",
+  "Pick slot",
+  "Confirm",
+] as const;
 
 function BookingPage() {
   const { service: serviceParam } = Route.useSearch();
@@ -123,17 +130,24 @@ const back = () => {
         {step === 1 && <StepAddons booking={b} set={setB} />}
         {step === 2 && <StepDetails booking={b} set={setB} />}
         {step === 3 && <StepDeposit booking={b} set={setB} total={total} />}
-        {step === 4 && (
-          <StepConfirm
-            booking={b}
-            service={service}
-            selectedAddOns={selectedAddOns}
-            total={total}
-            submitted={submitted}
-            onSubmit={() => setSubmitted(true)}
-          />
-        )}
-        {step === 5 && <StepSlot booking={b} service={service} total={total} />}
+{step === 4 && (
+  <StepSlot
+    booking={b}
+    service={service}
+    total={total}
+  />
+)}
+
+{step === 5 && (
+  <StepConfirm
+    booking={b}
+    service={service}
+    selectedAddOns={selectedAddOns}
+    total={total}
+    submitted={submitted}
+    onSubmit={() => setSubmitted(true)}
+  />
+)}
       </div>
 
       {step < steps.length - 1 && (
@@ -147,13 +161,13 @@ const back = () => {
           </button>
           <button
             onClick={() => {
-              if (step === 4 && !submitted) return;
+              if (step === 5 && !submitted) return;
               next();
             }}
-            disabled={!canNext() || (step === 4 && !submitted)}
+            disabled={!canNext() || (step === 5 && !submitted)}
             className="inline-flex items-center gap-1 rounded-full bg-wine px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft disabled:opacity-40"
           >
-            {step === 4 ? "Pick your slot" : "Continue"} <ChevronRight className="h-4 w-4" />
+          {step === 4 ? "Continue to WhatsApp" : "Continue"} <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       )}
@@ -445,7 +459,7 @@ function StepConfirm({ booking, service, selectedAddOns, total, submitted, onSub
           {booking.notes && <Row k="Notes" v={booking.notes} />}
         </dl>
         <button onClick={onSubmit} className="mt-6 w-full rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-luxe">
-          Send request via WhatsApp & pick my slot
+          Open WhatsApp & send booking request
         </button>
       </div>
     );
@@ -465,7 +479,7 @@ function StepConfirm({ booking, service, selectedAddOns, total, submitted, onSub
         <a href={waUrl} target="_blank" rel="noreferrer" className="rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft">
           Open WhatsApp to send proof & confirm
         </a>
-        <p className="text-xs text-muted-foreground">Next: pick your preferred date & time on the calendar (next step).</p>
+        <p className="text-xs text-muted-foreground">Next: Your booking request is now ready to send on WhatsApp.</p>
       </div>
     </div>
   );
