@@ -36,8 +36,8 @@ export const business = {
     rating: 4.9,
   },
   bookingEmbedUrl:
-    "https://calendar.google.com/calendar/appointments/schedules/AcZssZ1W7FLd7QNWhruyqWof_L1WoMzuXqtY4PXYI32JyuiMr9o9nkqGBgcnJiq6VE_BTLZk7Q6f7WRh?gv=true&ctz=Africa%2FGaborone",
-
+    "https://calendar.google.com/calendar/appointments/schedules/AcZssZ1W7FLd7QNWhruyqWof_L1WoMzuXqtY4PXYI32JyuiMr9o9nkqGBgcnJiq6VE_BTLZk7Q6f7WRh?gv=true",
+};
 
 export const services: Service[] = [
   // ----- GEL NAILS -----
@@ -166,6 +166,3 @@ export const policies = [
 ];
 
 export type AddOn = (typeof addOns)[number];
-
-
-
