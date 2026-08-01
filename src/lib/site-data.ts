@@ -95,6 +95,16 @@ export const services: Service[] = [
   duration: 60,
   price: 200,
   },
+  // ----- SOAK OFF -----
+{
+  id: "soak-off",
+  category: "Soak Off",
+  name: "Soak Off",
+  description: "Safe and gentle removal of gel or polygel product from hands or toes.",
+  duration: 30,
+  price: 50,
+},
+
 
   // ----- MAKE UP -----
   {
