@@ -114,17 +114,7 @@ export const services: Service[] = [
   duration: 120,
   price: 350,
   image: "https://i.postimg.cc/W3TJtnNz/3283555f-1de0-466f-977f-b95246be3cc2.jpg",
-},
-    // ----- HAIR -----
-  {
-  id: "hair-installation",
-  category: "Hair",
-  name: "Hair Installation",
-  description: "Professional hair installation.",
-  duration: 120,
-  price: 200,
-image: "https://i.postimg.cc/50SLmr7y/3adb0924-04b4-406d-855b-fb60d7dc7176.jpg",
-},
+}
 ];
 
 export const addOns = [
