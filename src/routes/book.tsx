@@ -18,7 +18,7 @@ export const Route = createFileRoute("/book")({
       {
         name: "description",
         content:
-          "Book your appointment at Tebo's Nail Heaven. Choose your appointment slot, select multiple services, provide your details and confirm through WhatsApp.",
+          "Book your appointment at Tebo's Nail Heaven. Select your services, choose your appointment slot, provide your details and confirm through WhatsApp.",
       },
     ],
   }),
@@ -26,8 +26,8 @@ export const Route = createFileRoute("/book")({
 });
 
 const steps = [
-  "Slot",
   "Services",
+  "Slot",
   "Deposit",
   "Details",
   "WhatsApp",
@@ -132,16 +132,34 @@ function BookingPage() {
 
   /*
    * Validation for each step.
+   *
+   * STEP 1 — SERVICES
+   * Customer must select at least one service.
+   *
+   * STEP 2 — SLOT
+   * Customer must select a date and time.
+   *
+   * STEP 3 — DEPOSIT
+   * No form validation required.
+   *
+   * STEP 4 — DETAILS
+   * Customer must provide name and phone.
+   *
+   * STEP 5 — WHATSAPP
+   * Customer must agree to the deposit policy.
    */
   const canContinue = () => {
-    // Step 1 — Slot
+    // Step 1 — Services
     if (step === 0) {
-      return appointmentDate !== "" && appointmentTime !== "";
+      return selectedServices.length > 0;
     }
 
-    // Step 2 — Services
+    // Step 2 — Slot
     if (step === 1) {
-      return selectedServices.length > 0;
+      return (
+        appointmentDate !== "" &&
+        appointmentTime !== ""
+      );
     }
 
     // Step 3 — Deposit
@@ -255,9 +273,9 @@ Thank you!`;
         </h1>
 
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-          Choose your appointment slot first, then select your
-          services, review your deposit, provide your details and
-          confirm through WhatsApp.
+          Select your services first, then choose your appointment
+          slot, review your deposit, provide your details and confirm
+          through WhatsApp.
         </p>
 
         <div className="mx-auto mt-6 max-w-2xl rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">
@@ -335,89 +353,11 @@ Thank you!`;
           MAIN CARD
       ========================== */}
       <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
+
         {/* =========================
-            STEP 1 — CALENDAR
+            STEP 1 — SERVICES
         ========================== */}
         {step === 0 && (
-          <section className="p-5 md:p-8">
-            <div className="mb-6">
-              <div className="flex items-center gap-3">
-                <CalendarDays className="h-6 w-6 text-wine" />
-
-                <h2 className="font-script text-3xl text-wine">
-                  Pick Your Booking Slot
-                </h2>
-              </div>
-
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Choose your preferred date and time using the
-                booking calendar below. Your selected appointment
-                slot will then be used for the rest of your booking.
-              </p>
-            </div>
-
-            {/* GOOGLE APPOINTMENT CALENDAR */}
-            <div className="overflow-hidden rounded-3xl border border-border bg-background">
-              <iframe
-                src={GOOGLE_CALENDAR_URL}
-                title="Tebo's Nail Heaven Appointment Calendar"
-                className="block h-[900px] w-full border-0 md:h-[850px]"
-                loading="lazy"
-                allow="fullscreen"
-              />
-            </div>
-
-            {/* Manual date/time fields */}
-            <div className="mt-6 rounded-2xl bg-secondary/50 p-5">
-              <p className="font-semibold text-wine">
-                Appointment details
-              </p>
-
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                After selecting your appointment in the calendar,
-                enter the date and time below so it can also be
-                included in your WhatsApp booking message.
-              </p>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="text-sm font-semibold">
-                    Selected Date *
-                  </span>
-
-                  <input
-                    type="date"
-                    value={appointmentDate}
-                    onChange={(e) =>
-                      setAppointmentDate(e.target.value)
-                    }
-                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="text-sm font-semibold">
-                    Selected Time *
-                  </span>
-
-                  <input
-                    type="time"
-                    value={appointmentTime}
-                    onChange={(e) =>
-                      setAppointmentTime(e.target.value)
-                    }
-                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
-                  />
-                </label>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* =========================
-            STEP 2 — SERVICES
-        ========================== */}
-        {step === 1 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">
@@ -425,8 +365,8 @@ Thank you!`;
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Select multiple services if you would like to
-                combine them into the same appointment.
+                Start by selecting every service you would like for
+                your appointment. You can combine multiple services.
               </p>
             </div>
 
@@ -452,6 +392,7 @@ Thank you!`;
                             onClick={() =>
                               toggleService(service.id)
                             }
+                            aria-pressed={selected}
                             className={`rounded-2xl border p-4 text-left transition-all ${
                               selected
                                 ? "border-wine bg-wine/5 ring-2 ring-wine/20"
@@ -525,6 +466,147 @@ Thank you!`;
                 </div>
               </div>
             )}
+
+            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="font-semibold text-wine">
+                Next: Choose your appointment slot
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Once you've selected your services, continue to the
+                booking calendar to choose your preferred date and
+                time.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* =========================
+            STEP 2 — CALENDAR / SLOT
+        ========================== */}
+        {step === 1 && (
+          <section className="p-5 md:p-8">
+            <div className="mb-6">
+              <div className="flex items-center gap-3">
+                <CalendarDays className="h-6 w-6 text-wine" />
+
+                <h2 className="font-script text-3xl text-wine">
+                  Pick Your Booking Slot
+                </h2>
+              </div>
+
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                You've selected your services. Now choose your
+                preferred date and time using the booking calendar
+                below.
+              </p>
+            </div>
+
+            {/* SELECTED SERVICES SUMMARY */}
+            <div className="mb-6 rounded-2xl bg-secondary/50 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Selected Services
+                  </p>
+
+                  <p className="mt-1 font-semibold text-wine">
+                    {selectedServices.length} service
+                    {selectedServices.length === 1
+                      ? ""
+                      : "s"}{" "}
+                    · {totalDuration} minutes
+                  </p>
+                </div>
+
+                <p className="text-xl font-bold text-wine">
+                  P{total}
+                </p>
+              </div>
+
+              <div className="mt-3 space-y-1">
+                {selectedServiceObjects.map((service) => (
+                  <div
+                    key={service.id}
+                    className="flex justify-between gap-4 text-sm"
+                  >
+                    <span>{service.name}</span>
+
+                    <span className="font-medium">
+                      P{service.price}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* GOOGLE APPOINTMENT CALENDAR */}
+            <div className="overflow-hidden rounded-3xl border border-border bg-background">
+              <iframe
+                src={GOOGLE_CALENDAR_URL}
+                title="Tebo's Nail Heaven Appointment Calendar"
+                className="block h-[900px] w-full border-0 md:h-[850px]"
+                loading="lazy"
+                allow="fullscreen"
+              />
+            </div>
+
+            {/* MANUAL DATE/TIME FIELDS */}
+            <div className="mt-6 rounded-2xl bg-secondary/50 p-5">
+              <p className="font-semibold text-wine">
+                Appointment details
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                After selecting your appointment in the calendar,
+                enter the date and time below so it can also be
+                included in your WhatsApp booking message.
+              </p>
+
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className="text-sm font-semibold">
+                    Selected Date *
+                  </span>
+
+                  <input
+                    type="date"
+                    value={appointmentDate}
+                    onChange={(e) =>
+                      setAppointmentDate(e.target.value)
+                    }
+                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-semibold">
+                    Selected Time *
+                  </span>
+
+                  <input
+                    type="time"
+                    value={appointmentTime}
+                    onChange={(e) =>
+                      setAppointmentTime(e.target.value)
+                    }
+                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="font-semibold text-wine">
+                Make sure your slot is correct
+              </p>
+
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                The date and time you enter above will be included
+                in your WhatsApp confirmation message. Please make
+                sure they match the slot you selected in the calendar.
+              </p>
+            </div>
           </section>
         )}
 
@@ -561,6 +643,7 @@ Thank you!`;
                 <div className="mt-5 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
                     <span>Total booking</span>
+
                     <span className="font-semibold">
                       P{total}
                     </span>
@@ -568,6 +651,7 @@ Thank you!`;
 
                   <div className="mt-2 flex justify-between text-sm">
                     <span>Remaining balance</span>
+
                     <span className="font-semibold">
                       P{remaining}
                     </span>
@@ -641,7 +725,8 @@ Thank you!`;
 
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 After making your P{deposit} deposit, please send
-                your proof of payment <strong>manually on WhatsApp</strong>.
+                your proof of payment{" "}
+                <strong>manually on WhatsApp</strong>.
                 You do not need to upload proof of payment on this
                 website.
               </p>
@@ -840,9 +925,9 @@ Thank you!`;
 
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   After making your P{deposit} deposit, send
-                  your proof of payment <strong>manually on
-                  WhatsApp</strong>. No upload is required on
-                  this website.
+                  your proof of payment{" "}
+                  <strong>manually on WhatsApp</strong>.
+                  No upload is required on this website.
                 </p>
               </div>
 
