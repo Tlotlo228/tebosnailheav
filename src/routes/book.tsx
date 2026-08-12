@@ -1,577 +1,822 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { Check, Copy, ChevronLeft, ChevronRight, Sparkles, AlertCircle, Calendar as CalIcon } from "lucide-react";
-import { services, addOns, business, policies, type Service, type AddOn } from "@/lib/site-data";
-
-const searchSchema = z.object({
-  service: fallback(z.string().optional(), undefined),
-});
+import { ArrowLeft, ArrowRight, Check, MessageCircle } from "lucide-react";
+import { services, addOns, business } from "@/lib/site-data";
 
 export const Route = createFileRoute("/book")({
-  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "Book an Appointment — Tebo's Nail Heaven" },
-      { name: "description", content: "Book your gel, polygel or lash appointment. P50 deposit secures your slot." },
-      { property: "og:title", content: "Book — Tebo's Nail Heaven" },
-      { property: "og:description", content: "Multi-step booking with deposit instructions." },
+      {
+        name: "description",
+        content:
+          "Book your appointment at Tebo's Nail Heaven. Select multiple services, choose your appointment time and confirm via WhatsApp.",
+      },
     ],
   }),
   component: BookingPage,
 });
 
-type Booking = {
-  serviceId: string | null;
-  addOnIds: string[];
-  inspoFileName: string | null;
-  name: string;
-  phone: string;
-  notes: string;
-  txRef: string;
-  proofFileName: string | null;
-  agreed: boolean;
-};
-
 const steps = [
-  "Service",
+  "Services",
   "Add-ons",
   "Details",
+  "Pick a Slot",
   "Deposit",
-  "Pick slot",
   "Confirm",
 ] as const;
 
+type Step = (typeof steps)[number];
+
 function BookingPage() {
-  const { service: serviceParam } = Route.useSearch();
   const [step, setStep] = useState(0);
-  const [b, setB] = useState<Booking>({
-    serviceId: serviceParam ?? null,
-    addOnIds: [],
-    inspoFileName: null,
-    name: "",
-    phone: "",
-    notes: "",
-    txRef: "",
-    proofFileName: null,
-    agreed: false,
-  });
-  const [submitted, setSubmitted] = useState(false);
 
-  const service = useMemo(() => services.find((s) => s.id === b.serviceId) ?? null, [b.serviceId]);
-  const selectedAddOns = useMemo(
-    () => addOns.filter((a) => b.addOnIds.includes(a.id)),
-    [b.addOnIds]
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [appointmentTime, setAppointmentTime] = useState("");
+
+  const [agreed, setAgreed] = useState(false);
+
+  const selectedServiceObjects = useMemo(
+    () => services.filter((service) => selectedServices.includes(service.id)),
+    [selectedServices]
   );
-  const total = (service?.price ?? 0) + selectedAddOns.reduce((s, a) => s + a.price, 0);
 
-  const canNext = () => {
-    if (step === 0) return !!b.serviceId;
-    if (step === 1) return true;
-    if (step === 2) return b.name.trim().length > 1 && b.phone.trim().length > 5;
-    if (step === 3) return b.txRef.trim().length > 0 && b.agreed;
+  const selectedAddOnObjects = useMemo(
+    () => addOns.filter((addon) => selectedAddOns.includes(addon.id)),
+    [selectedAddOns]
+  );
+
+  const servicesTotal = selectedServiceObjects.reduce(
+    (total, service) => total + service.price,
+    0
+  );
+
+  const addOnsTotal = selectedAddOnObjects.reduce(
+    (total, addon) => total + addon.price,
+    0
+  );
+
+  const total = servicesTotal + addOnsTotal;
+
+  const totalDuration = selectedServiceObjects.reduce(
+    (total, service) => total + service.duration,
+    0
+  );
+
+  const deposit = business.depositAmount;
+  const remaining = Math.max(total - deposit, 0);
+
+  const toggleService = (serviceId: string) => {
+    setSelectedServices((current) =>
+      current.includes(serviceId)
+        ? current.filter((id) => id !== serviceId)
+        : [...current, serviceId]
+    );
+  };
+
+  const toggleAddOn = (addOnId: string) => {
+    setSelectedAddOns((current) =>
+      current.includes(addOnId)
+        ? current.filter((id) => id !== addOnId)
+        : [...current, addOnId]
+    );
+  };
+
+  const groupedServices = services.reduce<Record<string, typeof services>>(
+    (groups, service) => {
+      if (!groups[service.category]) {
+        groups[service.category] = [];
+      }
+
+      groups[service.category].push(service);
+      return groups;
+    },
+    {}
+  );
+
+  const canContinue = () => {
+    if (step === 0) {
+      return selectedServices.length > 0;
+    }
+
+    if (step === 2) {
+      return name.trim().length > 0 && phone.trim().length > 0;
+    }
+
+    if (step === 3) {
+      return appointmentDate !== "" && appointmentTime !== "";
+    }
+
+    if (step === 5) {
+      return agreed;
+    }
+
     return true;
   };
 
-  const next = () => {
-  setStep((s) => Math.min(s + 1, steps.length - 1));
+  const nextStep = () => {
+    if (!canContinue()) return;
 
-  setTimeout(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, 50);
-};
+    setStep((current) => Math.min(current + 1, steps.length - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-const back = () => {
-  setStep((s) => Math.max(s - 1, 0));
+  const previousStep = () => {
+    setStep((current) => Math.max(current - 1, 0));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  setTimeout(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, 50);
-};
+  const buildWhatsAppMessage = () => {
+    const serviceText = selectedServiceObjects
+      .map((service) => `• ${service.name} — P${service.price}`)
+      .join("\n");
+
+    const addOnText =
+      selectedAddOnObjects.length > 0
+        ? selectedAddOnObjects
+            .map((addon) => `• ${addon.name} — P${addon.price}`)
+            .join("\n")
+        : "None";
+
+    return `Hello Tebo's Nail Heaven! 💅🏽
+
+I would like to confirm my appointment.
+
+CUSTOMER
+Name: ${name}
+Phone: ${phone}
+
+SERVICES
+${serviceText}
+
+ADD-ONS
+${addOnText}
+
+APPOINTMENT
+Date: ${appointmentDate}
+Time: ${appointmentTime}
+
+TOTAL
+Services + Add-ons: P${total}
+Deposit required: P${deposit}
+Remaining balance: P${remaining}
+Duration: ${totalDuration} minutes
+
+${notes ? `Notes:\n${notes}\n\n` : ""}I understand that the P${deposit} booking deposit is non-refundable.
+
+I will make the deposit and send my proof of payment manually on WhatsApp for verification.
+
+Thank you!`;
+  };
+
+  const openWhatsApp = () => {
+    const message = encodeURIComponent(buildWhatsAppMessage());
+
+    const whatsappNumber = business.whatsapp.replace(/\D/g, "");
+
+    window.open(
+      `https://wa.me/${whatsappNumber}?text=${message}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
 
   return (
-    <div className={`mx-auto px-4 py-10 ${step === 5 ? "max-w-6xl" : "max-w-3xl"}`}>
+    <div className="mx-auto max-w-5xl px-4 py-10 md:py-14">
+      {/* HEADER */}
       <header className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Booking</p>
-        <h1 className="mt-2 font-script text-4xl text-wine md:text-5xl">Reserve your slot</h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+          Appointments
+        </p>
+
+        <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">
+          Book Your Appointment
+        </h1>
+
+        <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
+          Select everything you need, choose your appointment time and confirm
+          your booking through WhatsApp.
+        </p>
       </header>
 
-      <ol className="mt-8 flex items-center justify-between gap-1 overflow-x-auto pb-2">
-        {steps.map((label, i) => (
-          <li key={label} className="flex flex-1 items-center gap-1">
-            <div
-              className={`flex h-7 w-7 flex-none items-center justify-center rounded-full text-xs font-bold ${
-                i < step
-                  ? "bg-gold text-accent-foreground"
-                  : i === step
-                  ? "bg-wine text-primary-foreground"
-                  : "border border-border bg-card text-muted-foreground"
-              }`}
-            >
-              {i < step ? <Check className="h-4 w-4" /> : i + 1}
-            </div>
-            {i < steps.length - 1 && (
-              <div className={`h-px flex-1 ${i < step ? "bg-gold" : "bg-border"}`} />
-            )}
-          </li>
-        ))}
-      </ol>
-      <p className="mt-2 text-center text-sm font-medium text-wine">{steps[step]}</p>
+      {/* STEP INDICATOR */}
+      <div className="mt-10 overflow-x-auto pb-2">
+        <div className="mx-auto flex min-w-max items-center justify-center">
+          {steps.map((stepName, index) => {
+            const active = index === step;
+            const complete = index < step;
 
-      <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-soft md:p-8">
-        {step === 0 && <StepService booking={b} set={setB} />}
-        {step === 1 && <StepAddons booking={b} set={setB} />}
-        {step === 2 && <StepDetails booking={b} set={setB} />}
-        {step === 3 && <StepDeposit booking={b} set={setB} total={total} />}
-{step === 4 && (
-  <StepSlot
-    booking={b}
-    service={service}
-    total={total}
-  />
-)}
-
-{step === 5 && (
-  <StepConfirm
-    booking={b}
-    service={service}
-    selectedAddOns={selectedAddOns}
-    total={total}
-    submitted={submitted}
-    onSubmit={() => setSubmitted(true)}
-  />
-)}
-      </div>
-
-      {step < steps.length - 1 && (
-        <div className="mt-6 flex items-center justify-between gap-3">
-          <button
-            onClick={back}
-            disabled={step === 0}
-            className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground/80 disabled:opacity-40"
-          >
-            <ChevronLeft className="h-4 w-4" /> Back
-          </button>
-          <button
-            onClick={() => {
-              if (step === 5 && !submitted) return;
-              next();
-            }}
-            disabled={!canNext() || (step === 5 && !submitted)}
-            className="inline-flex items-center gap-1 rounded-full bg-wine px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft disabled:opacity-40"
-          >
-          {step === 4 ? "Continue to WhatsApp" : "Continue"} <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StepService({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
-  const grouped = services.reduce<Record<string, typeof services>>((acc, s) => {
-    (acc[s.category] ||= []).push(s);
-    return acc;
-  }, {});
-  return (
-    <div>
-      <h2 className="font-script text-2xl text-wine">Choose your service</h2>
-      <p className="mt-1 text-sm text-muted-foreground">All prices in {business.currency}ula.</p>
-      <div className="mt-6 space-y-6">
-        {Object.entries(grouped).map(([cat, items]) => (
-          <div key={cat}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gold">{cat}</p>
-            <div className="mt-2 grid gap-2">
-              {items.map((s) => {
-                const active = booking.serviceId === s.id;
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => set({ ...booking, serviceId: s.id })}
-                    className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition-all ${
-                      active ? "border-wine bg-secondary shadow-soft" : "border-border hover:bg-secondary/40"
+            return (
+              <div key={stepName} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
+                      active
+                        ? "bg-wine text-primary-foreground"
+                        : complete
+                          ? "bg-gold text-white"
+                          : "border border-border bg-card text-muted-foreground"
                     }`}
                   >
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-wine">{s.name}</p>
+                    {complete ? <Check className="h-4 w-4" /> : index + 1}
+                  </div>
+
+                  <span
+                    className={`mt-2 text-[10px] font-semibold uppercase tracking-wide ${
+                      active ? "text-wine" : "text-muted-foreground"
+                    }`}
+                  >
+                    {stepName}
+                  </span>
+                </div>
+
+                {index < steps.length - 1 && (
+                  <div
+                    className={`mx-2 h-px w-8 md:w-12 ${
+                      index < step ? "bg-gold" : "bg-border"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MAIN CARD */}
+      <div className="mt-10 rounded-3xl border border-border bg-card p-5 shadow-soft md:p-8">
+        {/* STEP 1 — SERVICES */}
+        {step === 0 && (
+          <section>
+            <div className="mb-6">
+              <h2 className="font-script text-3xl text-wine">
+                Select Your Services
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                You can select multiple services for the same appointment.
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              {Object.entries(groupedServices).map(([category, items]) => (
+                <div key={category}>
+                  <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-wine">
+                    {category}
+                  </h3>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {items.map((service) => {
+                      const selected = selectedServices.includes(service.id);
+
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() => toggleService(service.id)}
+                          className={`rounded-2xl border p-4 text-left transition-all ${
+                            selected
+                              ? "border-wine bg-wine/5 ring-2 ring-wine/20"
+                              : "border-border bg-background hover:bg-secondary/50"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                                selected
+                                  ? "border-wine bg-wine text-white"
+                                  : "border-border"
+                              }`}
+                            >
+                              {selected && <Check className="h-3.5 w-3.5" />}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="font-semibold text-wine">
+                                  {service.name}
+                                </p>
+
+                                <span className="shrink-0 font-bold text-wine">
+                                  P{service.price}
+                                </span>
+                              </div>
+
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {service.description}
+                              </p>
+
+                              <p className="mt-2 text-xs font-medium text-gold">
+                                {service.duration} minutes
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {selectedServices.length > 0 && (
+              <div className="mt-6 rounded-2xl bg-secondary/50 p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">
+                    {selectedServices.length} service
+                    {selectedServices.length === 1 ? "" : "s"} selected
+                  </span>
+
+                  <span className="font-bold text-wine">
+                    P{servicesTotal}
+                  </span>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* STEP 2 — ADD ONS */}
+        {step === 1 && (
+          <section>
+            <div className="mb-6">
+              <h2 className="font-script text-3xl text-wine">
+                Add-ons
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Add anything extra you would like. You can also continue
+                without selecting an add-on.
+              </p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {addOns.map((addon) => {
+                const selected = selectedAddOns.includes(addon.id);
+
+                return (
+                  <button
+                    key={addon.id}
+                    type="button"
+                    onClick={() => toggleAddOn(addon.id)}
+                    className={`flex items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
+                      selected
+                        ? "border-wine bg-wine/5 ring-2 ring-wine/20"
+                        : "border-border bg-background hover:bg-secondary/50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                          selected
+                            ? "border-wine bg-wine text-white"
+                            : "border-border"
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5" />}
+                      </div>
+
+                      <span className="font-medium">{addon.name}</span>
                     </div>
-                    <span className="text-base font-bold text-wine">P{s.price}</span>
+
+                    <span className="font-bold text-wine">
+                      P{addon.price}
+                    </span>
                   </button>
                 );
               })}
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+          </section>
+        )}
 
-function StepAddons({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
-  const toggle = (id: string) =>
-    set({
-      ...booking,
-      addOnIds: booking.addOnIds.includes(id)
-        ? booking.addOnIds.filter((x) => x !== id)
-        : [...booking.addOnIds, id],
-    });
-  return (
-    <div>
-      <h2 className="font-script text-2xl text-wine">Add-ons</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Optional. Art is FREE in combo sets.</p>
-      <div className="mt-6 grid gap-2">
-        {addOns.map((a) => {
-          const active = booking.addOnIds.includes(a.id);
-          return (
-            <button
-              key={a.id}
-              onClick={() => toggle(a.id)}
-              className={`flex items-center justify-between gap-3 rounded-xl border p-3 text-left transition-all ${
-                active ? "border-wine bg-secondary" : "border-border hover:bg-secondary/40"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-5 w-5 flex-none items-center justify-center rounded-md border ${
-                    active ? "border-wine bg-wine text-primary-foreground" : "border-border"
-                  }`}
-                >
-                  {active && <Check className="h-3 w-3" />}
-                </div>
-                <span className="text-sm text-foreground/90">{a.name}</span>
+        {/* STEP 3 — DETAILS */}
+        {step === 2 && (
+          <section>
+            <div className="mb-6">
+              <h2 className="font-script text-3xl text-wine">
+                Your Details
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Enter your contact information so we can reach you about your
+                appointment.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <label className="block">
+                <span className="text-sm font-semibold">Full Name *</span>
+
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your full name"
+                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-semibold">Phone Number *</span>
+
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+267..."
+                  type="tel"
+                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
+                />
+              </label>
+            </div>
+
+            <label className="mt-5 block">
+              <span className="text-sm font-semibold">
+                Additional Notes
+              </span>
+
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Anything we should know about your appointment?"
+                rows={5}
+                className="mt-2 w-full resize-none rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
+              />
+            </label>
+          </section>
+        )}
+
+        {/* STEP 4 — SLOT */}
+        {step === 3 && (
+          <section>
+            <div className="mb-6">
+              <h2 className="font-script text-3xl text-wine">
+                Pick Your Slot
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Select the date and time you would like to request.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <label className="block">
+                <span className="text-sm font-semibold">Date *</span>
+
+                <input
+                  type="date"
+                  value={appointmentDate}
+                  onChange={(e) => setAppointmentDate(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-wine"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-semibold">Time *</span>
+
+                <input
+                  type="time"
+                  value={appointmentTime}
+                  onChange={(e) => setAppointmentTime(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:border-wine"
+                />
+              </label>
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-secondary/50 p-5">
+              <p className="font-semibold text-wine">
+                Studio Hours
+              </p>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                {business.hours}
+              </p>
+
+              <p className="mt-3 text-xs text-muted-foreground">
+                Your selected time will be sent to Tebo's Nail Heaven for
+                confirmation.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* STEP 5 — DEPOSIT */}
+        {step === 4 && (
+          <section>
+            <div className="mb-6">
+              <h2 className="font-script text-3xl text-wine">
+                Deposit Information
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Please review the payment information before confirming.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-background p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Deposit Required
+                </p>
+
+                <p className="mt-2 text-4xl font-bold text-wine">
+                  P{deposit}
+                </p>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  The P{deposit} booking fee is non-refundable.
+                </p>
               </div>
-              <span className="text-sm font-bold text-wine">+P{a.price}</span>
-            </button>
-          );
-        })}
+
+              <div className="rounded-2xl border border-border bg-background p-5">
+                <p className="font-semibold text-wine">
+                  Payment Details
+                </p>
+
+                <div className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">
+                      Mobile Money
+                    </p>
+                    <p className="font-semibold">
+                      {business.bankDetails.mobileMoneyProvider}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-muted-foreground">
+                      Number
+                    </p>
+                    <p className="font-semibold">
+                      {business.bankDetails.mobileMoneyNumber}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-muted-foreground">
+                      Account Name
+                    </p>
+                    <p className="font-semibold">
+                      {business.bankDetails.accountName}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-muted-foreground">
+                      Bank
+                    </p>
+                    <p className="font-semibold">
+                      {business.bankDetails.bankName}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-muted-foreground">
+                      Account Number
+                    </p>
+                    <p className="font-semibold">
+                      {business.bankDetails.accountNumber}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="font-semibold text-wine">
+                Important
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                After making your P{deposit} deposit, please send your proof
+                of payment <strong>manually on WhatsApp</strong>. There is no
+                proof-of-payment upload required on this website.
+              </p>
+
+              <a
+                href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-wine px-5 py-3 text-sm font-semibold text-primary-foreground"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Send Proof on WhatsApp
+              </a>
+            </div>
+          </section>
+        )}
+
+        {/* STEP 6 — CONFIRM */}
+        {step === 5 && (
+          <section>
+            <div className="mb-6 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold text-white">
+                <Check className="h-7 w-7" />
+              </div>
+
+              <h2 className="mt-5 font-script text-3xl text-wine">
+                Review Your Booking
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Check everything below before sending your booking to WhatsApp.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border p-5">
+                <h3 className="font-semibold text-wine">
+                  Services
+                </h3>
+
+                <div className="mt-3 space-y-2">
+                  {selectedServiceObjects.map((service) => (
+                    <div
+                      key={service.id}
+                      className="flex justify-between gap-4 text-sm"
+                    >
+                      <span>{service.name}</span>
+                      <span className="font-semibold">
+                        P{service.price}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedAddOnObjects.length > 0 && (
+                <div className="rounded-2xl border border-border p-5">
+                  <h3 className="font-semibold text-wine">
+                    Add-ons
+                  </h3>
+
+                  <div className="mt-3 space-y-2">
+                    {selectedAddOnObjects.map((addon) => (
+                      <div
+                        key={addon.id}
+                        className="flex justify-between gap-4 text-sm"
+                      >
+                        <span>{addon.name}</span>
+                        <span className="font-semibold">
+                          P{addon.price}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="rounded-2xl bg-secondary/50 p-5">
+                <div className="flex justify-between">
+                  <span>Total Duration</span>
+                  <span className="font-semibold">
+                    {totalDuration} minutes
+                  </span>
+                </div>
+
+                <div className="mt-3 flex justify-between">
+                  <span>Total</span>
+                  <span className="text-xl font-bold text-wine">
+                    P{total}
+                  </span>
+                </div>
+
+                <div className="mt-2 flex justify-between text-sm">
+                  <span>Deposit</span>
+                  <span>P{deposit}</span>
+                </div>
+
+                <div className="mt-2 flex justify-between text-sm">
+                  <span>Remaining Balance</span>
+                  <span>P{remaining}</span>
+                </div>
+
+                <div className="mt-3 border-t border-border pt-3 text-sm">
+                  <p>
+                    <strong>Date:</strong> {appointmentDate}
+                  </p>
+
+                  <p className="mt-1">
+                    <strong>Time:</strong> {appointmentTime}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border p-5">
+                <p>
+                  <strong>Name:</strong> {name}
+                </p>
+
+                <p className="mt-1">
+                  <strong>Phone:</strong> {phone}
+                </p>
+
+                {notes && (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    <strong>Notes:</strong> {notes}
+                  </p>
+                )}
+              </div>
+
+              <label className="flex cursor-pointer gap-3 rounded-2xl border border-border p-4">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-1 h-4 w-4"
+                />
+
+                <span className="text-sm leading-6">
+                  I understand that the P{deposit} booking fee is
+                  non-refundable and that I must send my proof of payment
+                  manually through WhatsApp after making the deposit.
+                </span>
+              </label>
+            </div>
+          </section>
+        )}
       </div>
-    </div>
-  );
-}
 
-function StepDetails({ booking, set }: { booking: Booking; set: (b: Booking) => void }) {
-  return (
-    <div>
-      <h2 className="font-script text-2xl text-wine">Your details</h2>
-      <div className="mt-6 grid gap-4">
-        <Field label="Full name" required>
-          <input
-            value={booking.name}
-            onChange={(e) => set({ ...booking, name: e.target.value })}
-            className="input"
-            placeholder="Lerato Moeng"
-          />
-        </Field>
-        <Field label="WhatsApp number" required>
-          <input
-            value={booking.phone}
-            onChange={(e) => set({ ...booking, phone: e.target.value })}
-            className="input"
-            placeholder="+267 7X XXX XXX"
-            inputMode="tel"
-          />
-        </Field>
-        <Field label="Notes (optional)">
-          <textarea
-            value={booking.notes}
-            onChange={(e) => set({ ...booking, notes: e.target.value })}
-            className="input min-h-[90px]"
-            placeholder="Any allergies, preferences, special requests…"
-          />
-        </Field>
-        <div className="rounded-2xl border-2 border-gold bg-accent/15 p-4">
-          <p className="flex items-center gap-2 text-sm font-bold text-wine">
-            <Sparkles className="h-4 w-4 text-gold" /> Inspiration photos
-          </p>
-          <p className="mt-2 text-sm text-foreground/85">
-            Please send your inspiration / reference photos <strong>manually on WhatsApp</strong>
-            {" "}to <strong>{business.whatsappDisplay}</strong> after completing this booking.
-            We'll open the chat for you at the final step.
-          </p>
-        </div>
-      </div>
-      <style>{`.input{width:100%;border:1px solid var(--color-border);background:var(--color-card);padding:0.65rem 0.85rem;border-radius:0.75rem;font-size:0.95rem;color:var(--color-foreground);outline:none;}.input:focus{border-color:var(--color-ring);box-shadow:0 0 0 3px color-mix(in oklab, var(--color-ring) 25%, transparent);}`}</style>
-    </div>
-  );
-}
+      {/* NAVIGATION */}
+      <div className="mt-6 flex items-center justify-between gap-3">
+        {step > 0 ? (
+          <button
+            type="button"
+            onClick={previousStep}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-semibold"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+        ) : (
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-sm font-semibold"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Services
+          </Link>
+        )}
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-wine">
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-/* ---------------- STEP 4: Deposit ---------------- */
-function StepDeposit({ booking, set, total }: { booking: Booking; set: (b: Booking) => void; total: number }) {
-  const [copied, setCopied] = useState<string | null>(null);
-  const copy = (val: string, k: string) => {
-    navigator.clipboard?.writeText(val);
-    setCopied(k);
-    setTimeout(() => setCopied(null), 1500);
-  };
-  return (
-    <div>
-      <h2 className="font-script text-2xl text-wine">Pay your deposit</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Estimated total: <span className="font-semibold text-wine">P{total}</span> · Deposit due now:{" "}
-        <span className="font-semibold text-wine">P{business.depositAmount}</span>
-      </p>
-
-      <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Bank transfer</p>
-        <div className="mt-3 space-y-2 text-sm">
-          <CopyRow label="Bank" value={business.bankDetails.bankName} copied={copied === "bank"} onCopy={() => copy(business.bankDetails.bankName, "bank")} />
-          <CopyRow label="Acc no." value={business.bankDetails.accountNumber} copied={copied === "acc"} onCopy={() => copy(business.bankDetails.accountNumber, "acc")} />
-          <CopyRow label="Branch" value={business.bankDetails.branch} copied={copied === "branch"} onCopy={() => copy(business.bankDetails.branch, "branch")} />
-          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "name"} onCopy={() => copy(business.bankDetails.accountName, "name")} />
-          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt-bank"} onCopy={() => copy(String(business.depositAmount), "amt-bank")} />
-        </div>
-        <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
-          <li>Log in to your Absa online banking or app.</li>
-          <li>Transfer <strong>P{business.depositAmount}</strong> to account <strong>{business.bankDetails.accountNumber}</strong> ({business.bankDetails.branch} branch).</li>
-          <li>Save the proof of payment / reference for the next step.</li>
-        </ol>
+        {step < steps.length - 1 ? (
+          <button
+            type="button"
+            onClick={nextStep}
+            disabled={!canContinue()}
+            className="inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Continue
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={openWhatsApp}
+            disabled={!agreed}
+            className="inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Confirm via WhatsApp
+          </button>
+        )}
       </div>
 
-      <div className="mt-5 rounded-2xl border border-gold/40 bg-accent/10 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-wine">Pay-to-Cell / eWallet</p>
-        <div className="mt-3 space-y-2 text-sm">
-          <CopyRow label="Provider" value={business.bankDetails.mobileMoneyProvider} copied={copied === "p"} onCopy={() => copy(business.bankDetails.mobileMoneyProvider, "p")} />
-          <CopyRow label="Number" value={business.bankDetails.mobileMoneyNumber} copied={copied === "n"} onCopy={() => copy(business.bankDetails.mobileMoneyRaw, "n")} />
-          <CopyRow label="Account name" value={business.bankDetails.accountName} copied={copied === "a"} onCopy={() => copy(business.bankDetails.accountName, "a")} />
-          <CopyRow label="Amount" value={`P${business.depositAmount}`} copied={copied === "amt"} onCopy={() => copy(String(business.depositAmount), "amt")} />
-        </div>
-        <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs text-foreground/80">
-          <li>Open your mobile banking app or dial your provider's USSD.</li>
-          <li>Send <strong>P{business.depositAmount}</strong> to <strong>{business.bankDetails.mobileMoneyNumber}</strong>.</li>
-          <li>Copy the reference/confirmation code you receive.</li>
-        </ol>
-      </div>
+      {/* BOOKING SUMMARY */}
+      {selectedServices.length > 0 && step < 5 && (
+        <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Booking Summary
+              </p>
 
-      <div className="mt-6 grid gap-4">
-        <Field label="Transaction reference" required>
-          <input
-            value={booking.txRef}
-            onChange={(e) => set({ ...booking, txRef: e.target.value })}
-            className="input"
-            placeholder="e.g. PTC-AX2389 (letters & numbers both OK)"
-          />
-          <p className="mt-1 text-xs text-muted-foreground">
-            The unique code from your Pay-to-Cell confirmation SMS or bank transfer reference. Letters, numbers or dashes —
-            paste it exactly as you received it.
-          </p>
-        </Field>
-        <div className="rounded-2xl border-2 border-destructive/60 bg-destructive/5 p-4">
-          <p className="flex items-center gap-2 text-sm font-bold text-destructive">
-            <AlertCircle className="h-4 w-4" /> Send your proof of payment on WhatsApp
-          </p>
-          <p className="mt-2 text-sm text-foreground/85">
-            You must <strong>manually send a screenshot</strong> of your payment confirmation
-            on WhatsApp to <strong>{business.whatsappDisplay}</strong>. We open the chat for you
-            at the final step — your booking is only verified once we receive the screenshot.
-          </p>
-        </div>
-      </div>
+              <p className="mt-1 font-semibold text-wine">
+                {selectedServices.length} service
+                {selectedServices.length === 1 ? "" : "s"}
+                {selectedAddOns.length > 0 &&
+                  ` + ${selectedAddOns.length} add-on${
+                    selectedAddOns.length === 1 ? "" : "s"
+                  }`}
+              </p>
+            </div>
 
-      <div className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
-        <div className="flex items-start gap-2">
-          <AlertCircle className="mt-0.5 h-4 w-4 flex-none text-destructive" />
-          <div className="text-xs leading-relaxed text-foreground/85">
-            <p className="font-semibold text-destructive">Cancellation policy</p>
-            <p className="mt-1">
-              Your slot is held on a pending basis and only secured once we verify your deposit.
-              Deposits are non-refundable on no-shows or cancellations inside 24 hours, but
-              transferable if you reschedule with 24+ hours notice. Failure to secure a slot in 30
-              minutes means it can be given away. Late coming is +P70; 15+ minutes late is automatic
-              cancellation.
-            </p>
-            {policies.slice(0, 2).map((p, i) => (
-              <p key={i} className="mt-1">• {p}</p>
-            ))}
+            <div className="text-right">
+              <p className="text-xl font-bold text-wine">
+                P{total}
+              </p>
+
+              <p className="text-xs text-muted-foreground">
+                {totalDuration} min
+              </p>
+            </div>
           </div>
         </div>
-        <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={booking.agreed}
-            onChange={(e) => set({ ...booking, agreed: e.target.checked })}
-            className="mt-0.5 h-4 w-4 accent-wine"
-          />
-          <span className="text-foreground/90">I understand and agree to the cancellation and booking policy.</span>
-        </label>
-      </div>
+      )}
     </div>
   );
-}
-
-function CopyRow({ label, value, copied, onCopy }: { label: string; value: string; copied: boolean; onCopy: () => void }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl bg-card px-3 py-2">
-      <div className="min-w-0">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
-        <p className="truncate text-sm font-semibold text-wine">{value}</p>
-      </div>
-      <button onClick={onCopy} className="inline-flex items-center gap-1 rounded-full bg-wine px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-        {copied ? "Copied" : "Copy"}
-      </button>
-    </div>
-  );
-}
-
-function StepConfirm({ booking, service, selectedAddOns, total, submitted, onSubmit }: { booking: Booking; service: Service | null; selectedAddOns: AddOn[]; total: number; submitted: boolean; onSubmit: () => void }) {
-  const summary = buildSummary({ booking, service, selectedAddOns, total });
-  const waUrl = `https://wa.me/${business.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
-
-  if (!submitted) {
-    return (
-      <div>
-        <h2 className="font-script text-2xl text-wine">Review your request</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          This is a <strong className="text-wine">booking request pending verification</strong> — not
-          a confirmed slot yet. We'll confirm via WhatsApp once your deposit is received.
-        </p>
-        <dl className="mt-6 divide-y divide-border rounded-2xl border border-border bg-secondary/40 p-4 text-sm">
-          <Row k="Service" v={service ? `${service.name} (${service.duration} min)` : "—"} />
-          <Row k="Add-ons" v={selectedAddOns.length ? selectedAddOns.map((a) => a.name).join(", ") : "None"} />
-          <Row k="Service total" v={`P${service?.price ?? 0}`} />
-          <Row k="Add-ons total" v={`P${selectedAddOns.reduce((s, a) => s + a.price, 0)}`} />
-          <Row k="Estimated total" v={`P${total}`} bold />
-          <Row k="Deposit paid" v={`P${business.depositAmount}`} />
-          <Row k="Transaction ref" v={booking.txRef || "—"} />
-          <Row k="Proof file" v={booking.proofFileName || "Will send on WhatsApp"} />
-          <Row k="Inspo file" v={booking.inspoFileName || "—"} />
-          <Row k="Name" v={booking.name} />
-          <Row k="Phone" v={booking.phone} />
-          {booking.notes && <Row k="Notes" v={booking.notes} />}
-        </dl>
-        <button onClick={onSubmit} className="mt-6 w-full rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-luxe">
-          Open WhatsApp & send booking request
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="text-center">
-      <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
-        <Check className="h-7 w-7" />
-      </div>
-      <h2 className="mt-4 font-script text-3xl text-wine">Request sent</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Your request has been prepared. You'll receive confirmation once your deposit is verified.
-        We'll follow up via WhatsApp the day before to confirm your appointment.
-      </p>
-      <div className="mt-6 flex flex-col gap-3">
-        <a href={waUrl} target="_blank" rel="noreferrer" className="rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft">
-          Open WhatsApp to send proof & confirm
-        </a>
-        <p className="text-xs text-muted-foreground">Next: Your booking request is now ready to send on WhatsApp.</p>
-      </div>
-    </div>
-  );
-}
-
-function Row({ k, v, bold }: { k: string; v: string; bold?: boolean }) {
-  return (
-    <div className="flex items-start justify-between gap-3 py-2">
-      <dt className="text-xs uppercase tracking-wider text-muted-foreground">{k}</dt>
-      <dd className={`max-w-[60%] text-right ${bold ? "text-base font-bold text-wine" : "text-sm text-foreground/90"}`}>{v}</dd>
-    </div>
-  );
-}
-
-function StepSlot({ booking, service, total }: { booking: Booking; service: Service | null; total: number }) {
-  const summary = buildSummary({ booking, service, selectedAddOns: addOns.filter((a) => booking.addOnIds.includes(a.id)), total });
-  const waUrl = `https://wa.me/${business.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
-
-  return (
-    <div>
-      <div className="flex items-center gap-2 text-wine">
-        <CalIcon className="h-5 w-5" />
-        <h2 className="font-script text-2xl">Pick your slot</h2>
-      </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Only available times are shown. Booked slots are hidden automatically.
-        After picking your slot, please <strong>add it to your phone's calendar</strong> so you don't
-        forget — Google Calendar will send you a reminder.
-      </p>
-      <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-luxe">
-        <iframe
-          title="Book a slot with Tebo's Nail Heaven"
-          src={business.bookingEmbedUrl}
-          style={{ border: 0, display: "block", width: "100%", minHeight: "900px" }}
-          width="100%"
-          height="900"
-          loading="lazy"
-        />
-      </div>
-      <div className="mt-6 rounded-2xl border-2 border-gold bg-accent/15 p-5 text-sm">
-        <p className="flex items-center gap-2 font-bold text-wine">
-          <Sparkles className="h-4 w-4 text-gold" /> WhatsApp upload checklist
-        </p>
-        <p className="mt-1 text-xs text-foreground/75">
-          Send all of these in the same WhatsApp chat to <strong>{business.whatsappDisplay}</strong>.
-          Your slot stays <em>pending</em> until each item is received.
-        </p>
-        <ul className="mt-3 space-y-2 text-sm text-foreground/90">
-          <ChecklistItem>📸 Screenshot of your payment confirmation</ChecklistItem>
-          <ChecklistItem>🔖 Transaction reference (paste the exact code)</ChecklistItem>
-          <ChecklistItem>💅 1–3 inspiration photos for your design</ChecklistItem>
-          <ChecklistItem>🗓️ A screenshot of the calendar slot you just picked</ChecklistItem>
-          <ChecklistItem>📱 Your full name &amp; the WhatsApp number you booked under</ChecklistItem>
-        </ul>
-        <a href={waUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-full bg-wine px-5 py-2 text-xs font-semibold text-primary-foreground">
-          Open WhatsApp with summary pre-filled
-        </a>
-      </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
-        <Link to="/status" className="font-semibold text-wine underline-offset-4 hover:underline">Check booking status →</Link>
-        <Link to="/" className="font-semibold text-wine/70 underline-offset-4 hover:underline">Back to home</Link>
-      </div>
-    </div>
-  );
-}
-
-function ChecklistItem({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-2 rounded-lg bg-card/70 px-3 py-2">
-      <Check className="mt-0.5 h-4 w-4 flex-none text-gold" />
-      <span>{children}</span>
-    </li>
-  );
-}
-
-function buildSummary({ booking, service, selectedAddOns, total }: { booking: Booking; service: Service | null; selectedAddOns: AddOn[]; total: number }) {
-  return [
-    `Hi Tebo! New booking request (pending verification):`,
-    ``,
-    `Name: ${booking.name}`,
-    `Phone: ${booking.phone}`,
-    `Service: ${service?.name ?? "—"} (${service?.duration ?? 0} min)`,
-    `Add-ons: ${selectedAddOns.length ? selectedAddOns.map((a) => a.name).join(", ") : "None"}`,
-    `Estimated total: P${total}`,
-    `Deposit paid: P${business.depositAmount}`,
-    `Transaction ref: ${booking.txRef}`,
-    booking.proofFileName ? `Proof of payment: ${booking.proofFileName} (sending in this chat)` : `Proof of payment: sending in this chat`,
-    booking.inspoFileName ? `Inspo photo: ${booking.inspoFileName} (sending in this chat)` : ``,
-    booking.notes ? `Notes: ${booking.notes}` : ``,
-    ``,
-    `I've also picked my slot on the Google Calendar link.`,
-  ]
-    .filter(Boolean)
-    .join("\n");
 }
