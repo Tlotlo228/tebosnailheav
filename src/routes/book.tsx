@@ -6,6 +6,7 @@ import {
   Check,
   MessageCircle,
   CalendarDays,
+  AlertCircle,
 } from "lucide-react";
 import { services, business } from "@/lib/site-data";
 
@@ -50,46 +51,24 @@ function BookingPage() {
   const [appointmentDate, setAppointmentDate] = useState("");
   const [appointmentTime, setAppointmentTime] = useState("");
 
+  const [txRef, setTxRef] = useState("");
+
   const [agreed, setAgreed] = useState(false);
 
-  /*
-   * Always open the booking page at the very top.
-   * This prevents Safari/iPhone from restoring the previous scroll position.
-   */
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
-
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     const timer = window.setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: "auto",
-      });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }, 100);
-
     return () => window.clearTimeout(timer);
   }, []);
 
-  /*
-   * Scroll to the top whenever the booking step changes.
-   */
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [step]);
 
   const selectedServiceObjects = useMemo(
-    () =>
-      services.filter((service) =>
-        selectedServices.includes(service.id)
-      ),
+    () => services.filter((service) => selectedServices.includes(service.id)),
     [selectedServices]
   );
 
@@ -104,7 +83,6 @@ function BookingPage() {
   );
 
   const deposit = business.depositAmount;
-
   const remaining = Math.max(total - deposit, 0);
 
   const toggleService = (serviceId: string) => {
@@ -115,100 +93,41 @@ function BookingPage() {
     );
   };
 
-  /*
-   * Group services by category.
-   */
-  const groupedServices = services.reduce<
-    Record<string, typeof services>
-  >((groups, service) => {
-    if (!groups[service.category]) {
-      groups[service.category] = [];
-    }
+  const groupedServices = services.reduce<Record<string, typeof services>>(
+    (groups, service) => {
+      if (!groups[service.category]) {
+        groups[service.category] = [];
+      }
+      groups[service.category].push(service);
+      return groups;
+    },
+    {}
+  );
 
-    groups[service.category].push(service);
-
-    return groups;
-  }, {});
-
-  /*
-   * Validation for each step.
-   *
-   * STEP 1 — SERVICES
-   * Customer must select at least one service.
-   *
-   * STEP 2 — SLOT
-   * Customer must select a date and time.
-   *
-   * STEP 3 — DEPOSIT
-   * No form validation required.
-   *
-   * STEP 4 — DETAILS
-   * Customer must provide name and phone.
-   *
-   * STEP 5 — WHATSAPP
-   * Customer must agree to the deposit policy.
-   */
   const canContinue = () => {
-    // Step 1 — Services
-    if (step === 0) {
-      return selectedServices.length > 0;
-    }
-
-    // Step 2 — Slot
-    if (step === 1) {
-      return (
-        appointmentDate !== "" &&
-        appointmentTime !== ""
-      );
-    }
-
-    // Step 3 — Deposit
-    if (step === 2) {
-      return true;
-    }
-
-    // Step 4 — Details
-    if (step === 3) {
-      return (
-        name.trim().length > 0 &&
-        phone.trim().length > 0
-      );
-    }
-
-    // Step 5 — WhatsApp
-    if (step === 4) {
-      return agreed;
-    }
-
+    if (step === 0) return selectedServices.length > 0;
+    if (step === 1) return appointmentDate !== "" && appointmentTime !== "";
+    if (step === 2) return txRef.trim().length > 0;
+    if (step === 3) return name.trim().length > 0 && phone.trim().length > 0;
+    if (step === 4) return agreed;
     return true;
   };
 
   const nextStep = () => {
     if (!canContinue()) return;
-
-    setStep((current) =>
-      Math.min(current + 1, steps.length - 1)
-    );
+    setStep((current) => Math.min(current + 1, steps.length - 1));
   };
 
   const previousStep = () => {
-    setStep((current) =>
-      Math.max(current - 1, 0)
-    );
+    setStep((current) => Math.max(current - 1, 0));
   };
 
-  /*
-   * WhatsApp message.
-   */
   const buildWhatsAppMessage = () => {
     const serviceText = selectedServiceObjects
-      .map(
-        (service) =>
-          `• ${service.name} — P${service.price}`
-      )
+      .map((service) => `• ${service.name} — P${service.price}`)
       .join("\n");
 
-    return `Hello Tebo's Nail Heaven! 💅🏽
+    return `Hello Tebo's Nail Heaven! 💅
 
 I would like to confirm my appointment.
 
@@ -229,28 +148,19 @@ Deposit required: P${deposit}
 Remaining balance: P${remaining}
 Total duration: ${totalDuration} minutes
 
-${
-  notes
-    ? `NOTES
-${notes}
+PAYMENT REFERENCE
+Transaction reference: ${txRef}
 
-`
-    : ""
-}I understand that the P${deposit} booking deposit is non-refundable.
+${notes ? `NOTES\n${notes}\n\n` : ""}I understand that the P${deposit} booking deposit is non-refundable.
 
-I will make the deposit and send my proof of payment manually on WhatsApp for verification.
+I will send my proof of payment manually on WhatsApp for verification.
 
 Thank you!`;
   };
 
   const openWhatsApp = () => {
-    const message = encodeURIComponent(
-      buildWhatsAppMessage()
-    );
-
-    const whatsappNumber =
-      business.whatsapp.replace(/\D/g, "");
-
+    const message = encodeURIComponent(buildWhatsAppMessage());
+    const whatsappNumber = business.whatsapp.replace(/\D/g, "");
     window.open(
       `https://wa.me/${whatsappNumber}?text=${message}`,
       "_blank",
@@ -260,50 +170,34 @@ Thank you!`;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10 md:px-6 md:py-14">
-      {/* =========================
-          HEADER
-      ========================== */}
+      {/* HEADER */}
       <header className="text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           Reserve
         </p>
-
         <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">
           Book Your Appointment
         </h1>
-
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-          Select your services first, then choose your appointment
-          slot, review your deposit, provide your details and confirm
-          through WhatsApp.
+          Select your services first, then choose your appointment slot, review
+          your deposit, provide your details and confirm through WhatsApp.
         </p>
-
         <div className="mx-auto mt-6 max-w-2xl rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">
           {business.hours}
         </div>
       </header>
 
-      {/* =========================
-          STEP INDICATOR
-      ========================== */}
+      {/* STEP INDICATOR */}
       <div className="mt-8 overflow-x-auto pb-2">
         <div className="mx-auto flex min-w-max items-start justify-center">
           {steps.map((stepName, index) => {
             const active = index === step;
             const complete = index < step;
-
             return (
-              <div
-                key={stepName}
-                className="flex items-start"
-              >
+              <div key={stepName} className="flex items-start">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (index < step) {
-                      setStep(index);
-                    }
-                  }}
+                  onClick={() => { if (index < step) setStep(index); }}
                   disabled={index > step}
                   className="flex w-[72px] flex-col items-center"
                 >
@@ -312,34 +206,24 @@ Thank you!`;
                       active
                         ? "bg-wine text-primary-foreground shadow-soft"
                         : complete
-                          ? "bg-gold text-white"
-                          : "border border-border bg-card text-muted-foreground"
+                        ? "bg-gold text-white"
+                        : "border border-border bg-card text-muted-foreground"
                     }`}
                   >
-                    {complete ? (
-                      <Check className="h-5 w-5" />
-                    ) : (
-                      index + 1
-                    )}
+                    {complete ? <Check className="h-5 w-5" /> : index + 1}
                   </div>
-
                   <span
                     className={`mt-2 text-[11px] font-semibold ${
-                      active
-                        ? "text-wine"
-                        : "text-muted-foreground"
+                      active ? "text-wine" : "text-muted-foreground"
                     }`}
                   >
                     {stepName}
                   </span>
                 </button>
-
                 {index < steps.length - 1 && (
                   <div
                     className={`mt-7 h-px w-7 md:w-12 ${
-                      index < step
-                        ? "bg-gold"
-                        : "bg-border"
+                      index < step ? "bg-gold" : "bg-border"
                     }`}
                   />
                 )}
@@ -349,98 +233,72 @@ Thank you!`;
         </div>
       </div>
 
-      {/* =========================
-          MAIN CARD
-      ========================== */}
+      {/* MAIN CARD */}
       <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-card shadow-soft">
 
-        {/* =========================
-            STEP 1 — SERVICES
-        ========================== */}
+        {/* STEP 1 — SERVICES */}
         {step === 0 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
-              <h2 className="font-script text-3xl text-wine">
-                Select Your Services
-              </h2>
-
+              <h2 className="font-script text-3xl text-wine">Select Your Services</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Start by selecting every service you would like for
-                your appointment. You can combine multiple services.
+                Start by selecting every service you would like for your
+                appointment. You can combine multiple services.
               </p>
             </div>
 
             <div className="space-y-8">
-              {Object.entries(groupedServices).map(
-                ([category, items]) => (
-                  <div key={category}>
-                    <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-wine">
-                      {category}
-                    </h3>
-
-                    <div className="grid gap-3 md:grid-cols-2">
-                      {items.map((service) => {
-                        const selected =
-                          selectedServices.includes(
-                            service.id
-                          );
-
-                        return (
-                          <button
-                            key={service.id}
-                            type="button"
-                            onClick={() =>
-                              toggleService(service.id)
-                            }
-                            aria-pressed={selected}
-                            className={`rounded-2xl border p-4 text-left transition-all ${
-                              selected
-                                ? "border-wine bg-wine/5 ring-2 ring-wine/20"
-                                : "border-border bg-background hover:bg-secondary/50"
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div
-                                className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
-                                  selected
-                                    ? "border-wine bg-wine text-white"
-                                    : "border-border"
-                                }`}
-                              >
-                                {selected && (
-                                  <Check className="h-3.5 w-3.5" />
-                                )}
-                              </div>
-
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-start justify-between gap-3">
-                                  <p className="font-semibold text-wine">
-                                    {service.name}
-                                  </p>
-
-                                  <span className="shrink-0 font-bold text-wine">
-                                    P{service.price}
-                                  </span>
-                                </div>
-
-                                {service.description && (
-                                  <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                                    {service.description}
-                                  </p>
-                                )}
-
-                                <p className="mt-2 text-xs font-medium text-gold">
-                                  {service.duration} minutes
-                                </p>
-                              </div>
+              {Object.entries(groupedServices).map(([category, items]) => (
+                <div key={category}>
+                  <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-wine">
+                    {category}
+                  </h3>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {items.map((service) => {
+                      const selected = selectedServices.includes(service.id);
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() => toggleService(service.id)}
+                          aria-pressed={selected}
+                          className={`rounded-2xl border p-4 text-left transition-all ${
+                            selected
+                              ? "border-wine bg-wine/5 ring-2 ring-wine/20"
+                              : "border-border bg-background hover:bg-secondary/50"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+                                selected
+                                  ? "border-wine bg-wine text-white"
+                                  : "border-border"
+                              }`}
+                            >
+                              {selected && <Check className="h-3.5 w-3.5" />}
                             </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-3">
+                                <p className="font-semibold text-wine">{service.name}</p>
+                                <span className="shrink-0 font-bold text-wine">P{service.price}</span>
+                              </div>
+                              {service.description && (
+                                <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                                  {service.description}
+                                </p>
+                              )}
+                              <p className="mt-2 text-xs font-medium text-gold">
+                                {service.duration} minutes
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
 
             {selectedServices.length > 0 && (
@@ -448,99 +306,61 @@ Thank you!`;
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold">
-                      {selectedServices.length} service
-                      {selectedServices.length === 1
-                        ? ""
-                        : "s"}{" "}
-                      selected
+                      {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} selected
                     </p>
-
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {totalDuration} minutes total
-                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{totalDuration} minutes total</p>
                   </div>
-
-                  <p className="text-xl font-bold text-wine">
-                    P{total}
-                  </p>
+                  <p className="text-xl font-bold text-wine">P{total}</p>
                 </div>
               </div>
             )}
 
             <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">
-                Next: Choose your appointment slot
-              </p>
-
+              <p className="font-semibold text-wine">Next: Choose your appointment slot</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Once you've selected your services, continue to the
-                booking calendar to choose your preferred date and
-                time.
+                Once you've selected your services, continue to the booking calendar to choose your
+                preferred date and time.
               </p>
             </div>
           </section>
         )}
 
-        {/* =========================
-            STEP 2 — CALENDAR / SLOT
-        ========================== */}
+        {/* STEP 2 — SLOT */}
         {step === 1 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <div className="flex items-center gap-3">
                 <CalendarDays className="h-6 w-6 text-wine" />
-
-                <h2 className="font-script text-3xl text-wine">
-                  Pick Your Booking Slot
-                </h2>
+                <h2 className="font-script text-3xl text-wine">Pick Your Booking Slot</h2>
               </div>
-
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                You've selected your services. Now choose your
-                preferred date and time using the booking calendar
-                below.
+                You've selected your services. Now choose your preferred date and time using the
+                booking calendar below.
               </p>
             </div>
 
-            {/* SELECTED SERVICES SUMMARY */}
             <div className="mb-6 rounded-2xl bg-secondary/50 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Selected Services
                   </p>
-
                   <p className="mt-1 font-semibold text-wine">
-                    {selectedServices.length} service
-                    {selectedServices.length === 1
-                      ? ""
-                      : "s"}{" "}
-                    · {totalDuration} minutes
+                    {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} · {totalDuration} minutes
                   </p>
                 </div>
-
-                <p className="text-xl font-bold text-wine">
-                  P{total}
-                </p>
+                <p className="text-xl font-bold text-wine">P{total}</p>
               </div>
-
               <div className="mt-3 space-y-1">
                 {selectedServiceObjects.map((service) => (
-                  <div
-                    key={service.id}
-                    className="flex justify-between gap-4 text-sm"
-                  >
+                  <div key={service.id} className="flex justify-between gap-4 text-sm">
                     <span>{service.name}</span>
-
-                    <span className="font-medium">
-                      P{service.price}
-                    </span>
+                    <span className="font-medium">P{service.price}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* GOOGLE APPOINTMENT CALENDAR */}
             <div className="overflow-hidden rounded-3xl border border-border bg-background">
               <iframe
                 src={GOOGLE_CALENDAR_URL}
@@ -551,45 +371,28 @@ Thank you!`;
               />
             </div>
 
-            {/* MANUAL DATE/TIME FIELDS */}
             <div className="mt-6 rounded-2xl bg-secondary/50 p-5">
-              <p className="font-semibold text-wine">
-                Appointment details
-              </p>
-
+              <p className="font-semibold text-wine">Appointment details</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                After selecting your appointment in the calendar,
-                enter the date and time below so it can also be
-                included in your WhatsApp booking message.
+                After selecting your appointment in the calendar, enter the date and time below so
+                it can also be included in your WhatsApp booking message.
               </p>
-
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="text-sm font-semibold">
-                    Selected Date *
-                  </span>
-
+                  <span className="text-sm font-semibold">Selected Date *</span>
                   <input
                     type="date"
                     value={appointmentDate}
-                    onChange={(e) =>
-                      setAppointmentDate(e.target.value)
-                    }
+                    onChange={(e) => setAppointmentDate(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
                   />
                 </label>
-
                 <label className="block">
-                  <span className="text-sm font-semibold">
-                    Selected Time *
-                  </span>
-
+                  <span className="text-sm font-semibold">Selected Time *</span>
                   <input
                     type="time"
                     value={appointmentTime}
-                    onChange={(e) =>
-                      setAppointmentTime(e.target.value)
-                    }
+                    onChange={(e) => setAppointmentTime(e.target.value)}
                     className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
                   />
                 </label>
@@ -597,32 +400,23 @@ Thank you!`;
             </div>
 
             <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">
-                Make sure your slot is correct
-              </p>
-
+              <p className="font-semibold text-wine">Make sure your slot is correct</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                The date and time you enter above will be included
-                in your WhatsApp confirmation message. Please make
-                sure they match the slot you selected in the calendar.
+                The date and time you enter above will be included in your WhatsApp confirmation
+                message. Please make sure they match the slot you selected in the calendar.
               </p>
             </div>
           </section>
         )}
 
-        {/* =========================
-            STEP 3 — DEPOSIT
-        ========================== */}
+        {/* STEP 3 — DEPOSIT */}
         {step === 2 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
-              <h2 className="font-script text-3xl text-wine">
-                Deposit
-              </h2>
-
+              <h2 className="font-script text-3xl text-wine">Deposit</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Review the deposit and payment information before
-                continuing.
+                Review the deposit and payment information, make your payment, then enter your
+                transaction reference below.
               </p>
             </div>
 
@@ -631,151 +425,154 @@ Thank you!`;
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Deposit Required
                 </p>
-
-                <p className="mt-2 text-4xl font-bold text-wine">
-                  P{deposit}
-                </p>
-
+                <p className="mt-2 text-4xl font-bold text-wine">P{deposit}</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   This booking deposit is non-refundable.
                 </p>
-
                 <div className="mt-5 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
                     <span>Total booking</span>
-
-                    <span className="font-semibold">
-                      P{total}
-                    </span>
+                    <span className="font-semibold">P{total}</span>
                   </div>
-
                   <div className="mt-2 flex justify-between text-sm">
                     <span>Remaining balance</span>
-
-                    <span className="font-semibold">
-                      P{remaining}
-                    </span>
+                    <span className="font-semibold">P{remaining}</span>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-2xl border border-border bg-background p-6">
-                <p className="font-semibold text-wine">
-                  Payment Details
-                </p>
-
+                <p className="font-semibold text-wine">Payment Details</p>
                 <div className="mt-4 space-y-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">
-                      Mobile Money
-                    </p>
-
-                    <p className="font-semibold">
-                      {business.bankDetails.mobileMoneyProvider}
-                    </p>
+                    <p className="text-muted-foreground">Mobile Money</p>
+                    <p className="font-semibold">{business.bankDetails.mobileMoneyProvider}</p>
                   </div>
-
                   <div>
-                    <p className="text-muted-foreground">
-                      Number
-                    </p>
-
-                    <p className="font-semibold">
-                      {business.bankDetails.mobileMoneyNumber}
-                    </p>
+                    <p className="text-muted-foreground">Number</p>
+                    <p className="font-semibold">{business.bankDetails.mobileMoneyNumber}</p>
                   </div>
-
                   <div>
-                    <p className="text-muted-foreground">
-                      Account Name
-                    </p>
-
-                    <p className="font-semibold">
-                      {business.bankDetails.accountName}
-                    </p>
+                    <p className="text-muted-foreground">Account Name</p>
+                    <p className="font-semibold">{business.bankDetails.accountName}</p>
                   </div>
-
                   <div>
-                    <p className="text-muted-foreground">
-                      Bank
-                    </p>
-
-                    <p className="font-semibold">
-                      {business.bankDetails.bankName}
-                    </p>
+                    <p className="text-muted-foreground">Bank</p>
+                    <p className="font-semibold">{business.bankDetails.bankName}</p>
                   </div>
-
                   <div>
-                    <p className="text-muted-foreground">
-                      Account Number
-                    </p>
-
-                    <p className="font-semibold">
-                      {business.bankDetails.accountNumber}
-                    </p>
+                    <p className="text-muted-foreground">Account Number</p>
+                    <p className="font-semibold">{business.bankDetails.accountNumber}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">
-                Important
+            {/* ✅ TRANSACTION REFERENCE SECTION */}
+            <div className="mt-6 rounded-2xl border-2 border-wine/30 bg-wine/5 p-6">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-wine" />
+                <p className="font-bold text-wine">What is a transaction reference?</p>
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-foreground/85">
+                When you pay via Pay-to-Cell or bank transfer, your bank or mobile money provider
+                sends you a <strong>confirmation SMS or notification</strong>. Inside that message
+                is a unique code — that's your <strong>transaction reference</strong>.
               </p>
 
+              <p className="mt-2 text-sm leading-6 text-foreground/85">
+                We use this code to <strong>match your payment to your booking</strong>. Without
+                it, we have no way of knowing the deposit came from you — and your slot{" "}
+                <strong>cannot be confirmed</strong>. Think of it as your booking receipt number.
+              </p>
+
+              <div className="mt-4 rounded-xl bg-card p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-wine">
+                  Where to find it
+                </p>
+                <ul className="mt-3 space-y-2 text-sm text-foreground/85">
+                  <li className="flex items-start gap-2">
+                    <span>📱</span>
+                    <span>
+                      <strong>Orange Money / Pay-to-Cell:</strong> Check the SMS you receive
+                      immediately after sending the payment. The reference starts with something
+                      like <strong>PTC-</strong> or <strong>OM-</strong>.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>🏦</span>
+                    <span>
+                      <strong>Absa / bank transfer:</strong> Check your banking app notification,
+                      email confirmation, or transaction history. It usually looks like{" "}
+                      <strong>FT2308XXXXX</strong>.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span>📋</span>
+                    <span>
+                      <strong>Can't find it?</strong> Don't panic — just send your payment
+                      screenshot on WhatsApp and we'll locate it together.
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-5">
+                <label className="block">
+                  <span className="text-sm font-bold text-wine">
+                    Paste your transaction reference here *
+                  </span>
+                  <input
+                    value={txRef}
+                    onChange={(e) => setTxRef(e.target.value)}
+                    placeholder="e.g. PTC-AX2389 or FT23081234"
+                    className="mt-2 w-full rounded-xl border border-wine/40 bg-background px-4 py-3 text-sm outline-none transition focus:border-wine focus:ring-2 focus:ring-wine/20"
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Copy and paste it exactly as it appears in your SMS or banking app. You cannot
+                    continue without this — it's how we verify your deposit.
+                  </p>
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="font-semibold text-wine">Also send your proof of payment</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                After making your P{deposit} deposit, please send
-                your proof of payment{" "}
-                <strong>manually on WhatsApp</strong>.
-                You do not need to upload proof of payment on this
+                After completing this booking, send a <strong>screenshot</strong> of your payment
+                confirmation <strong>manually on WhatsApp</strong>. No upload is required on this
                 website.
               </p>
             </div>
           </section>
         )}
 
-        {/* =========================
-            STEP 4 — DETAILS
-        ========================== */}
+        {/* STEP 4 — DETAILS */}
         {step === 3 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
-              <h2 className="font-script text-3xl text-wine">
-                Your Details
-              </h2>
-
+              <h2 className="font-script text-3xl text-wine">Your Details</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Enter your details so Tebo's Nail Heaven can
-                contact you about your appointment.
+                Enter your details so Tebo's Nail Heaven can contact you about your appointment.
               </p>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
               <label className="block">
-                <span className="text-sm font-semibold">
-                  Full Name *
-                </span>
-
+                <span className="text-sm font-semibold">Full Name *</span>
                 <input
                   value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Your full name"
                   className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
                 />
               </label>
-
               <label className="block">
-                <span className="text-sm font-semibold">
-                  Phone Number *
-                </span>
-
+                <span className="text-sm font-semibold">Phone Number *</span>
                 <input
                   value={phone}
-                  onChange={(e) =>
-                    setPhone(e.target.value)
-                  }
+                  onChange={(e) => setPhone(e.target.value)}
                   placeholder="+267..."
                   type="tel"
                   className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
@@ -784,15 +581,10 @@ Thank you!`;
             </div>
 
             <label className="mt-5 block">
-              <span className="text-sm font-semibold">
-                Additional Notes
-              </span>
-
+              <span className="text-sm font-semibold">Additional Notes</span>
               <textarea
                 value={notes}
-                onChange={(e) =>
-                  setNotes(e.target.value)
-                }
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Anything we should know about your appointment?"
                 rows={5}
                 className="mt-2 w-full resize-none rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
@@ -801,74 +593,40 @@ Thank you!`;
           </section>
         )}
 
-        {/* =========================
-            STEP 5 — WHATSAPP
-        ========================== */}
+        {/* STEP 5 — WHATSAPP */}
         {step === 4 && (
           <section className="p-5 md:p-8">
             <div className="mb-6 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold text-white">
                 <Check className="h-7 w-7" />
               </div>
-
-              <h2 className="mt-5 font-script text-3xl text-wine">
-                Review Your Booking
-              </h2>
-
+              <h2 className="mt-5 font-script text-3xl text-wine">Review Your Booking</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Review everything below, then send your booking
-                through WhatsApp.
+                Review everything below, then send your booking through WhatsApp.
               </p>
             </div>
 
             <div className="space-y-4">
               {/* SERVICES */}
               <div className="rounded-2xl border border-border p-5">
-                <h3 className="font-semibold text-wine">
-                  Selected Services
-                </h3>
-
+                <h3 className="font-semibold text-wine">Selected Services</h3>
                 <div className="mt-3 space-y-3">
-                  {selectedServiceObjects.map(
-                    (service) => (
-                      <div
-                        key={service.id}
-                        className="flex justify-between gap-4 text-sm"
-                      >
-                        <span>
-                          {service.name}
-                        </span>
-
-                        <span className="font-semibold">
-                          P{service.price}
-                        </span>
-                      </div>
-                    )
-                  )}
+                  {selectedServiceObjects.map((service) => (
+                    <div key={service.id} className="flex justify-between gap-4 text-sm">
+                      <span>{service.name}</span>
+                      <span className="font-semibold">P{service.price}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               {/* APPOINTMENT */}
               <div className="rounded-2xl border border-border p-5">
-                <h3 className="font-semibold text-wine">
-                  Appointment
-                </h3>
-
+                <h3 className="font-semibold text-wine">Appointment</h3>
                 <div className="mt-3 space-y-2 text-sm">
-                  <p>
-                    <strong>Date:</strong>{" "}
-                    {appointmentDate}
-                  </p>
-
-                  <p>
-                    <strong>Time:</strong>{" "}
-                    {appointmentTime}
-                  </p>
-
-                  <p>
-                    <strong>Duration:</strong>{" "}
-                    {totalDuration} minutes
-                  </p>
+                  <p><strong>Date:</strong> {appointmentDate}</p>
+                  <p><strong>Time:</strong> {appointmentTime}</p>
+                  <p><strong>Duration:</strong> {totalDuration} minutes</p>
                 </div>
               </div>
 
@@ -876,58 +634,46 @@ Thank you!`;
               <div className="rounded-2xl bg-secondary/50 p-5">
                 <div className="flex justify-between">
                   <span>Total</span>
-
-                  <span className="text-xl font-bold text-wine">
-                    P{total}
-                  </span>
+                  <span className="text-xl font-bold text-wine">P{total}</span>
                 </div>
-
                 <div className="mt-2 flex justify-between text-sm">
                   <span>Deposit Required</span>
-
                   <span>P{deposit}</span>
                 </div>
-
                 <div className="mt-2 flex justify-between text-sm">
                   <span>Remaining Balance</span>
-
                   <span>P{remaining}</span>
                 </div>
               </div>
 
+              {/* TRANSACTION REF */}
+              <div className="rounded-2xl border border-wine/20 bg-wine/5 p-5">
+                <h3 className="font-semibold text-wine">Transaction Reference</h3>
+                <p className="mt-2 text-sm font-mono font-bold text-wine">{txRef}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  This will be included in your WhatsApp message so we can verify your deposit.
+                </p>
+              </div>
+
               {/* CUSTOMER */}
               <div className="rounded-2xl border border-border p-5">
-                <h3 className="font-semibold text-wine">
-                  Your Details
-                </h3>
-
-                <p className="mt-3 text-sm">
-                  <strong>Name:</strong> {name}
-                </p>
-
-                <p className="mt-1 text-sm">
-                  <strong>Phone:</strong> {phone}
-                </p>
-
+                <h3 className="font-semibold text-wine">Your Details</h3>
+                <p className="mt-3 text-sm"><strong>Name:</strong> {name}</p>
+                <p className="mt-1 text-sm"><strong>Phone:</strong> {phone}</p>
                 {notes && (
                   <p className="mt-3 text-sm text-muted-foreground">
-                    <strong>Notes:</strong>{" "}
-                    {notes}
+                    <strong>Notes:</strong> {notes}
                   </p>
                 )}
               </div>
 
               {/* PAYMENT NOTICE */}
               <div className="rounded-2xl border border-gold/30 bg-gold/5 p-5">
-                <p className="font-semibold text-wine">
-                  Payment & Proof of Payment
-                </p>
-
+                <p className="font-semibold text-wine">Proof of Payment</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  After making your P{deposit} deposit, send
-                  your proof of payment{" "}
-                  <strong>manually on WhatsApp</strong>.
-                  No upload is required on this website.
+                  After sending this WhatsApp message, also send a{" "}
+                  <strong>screenshot of your payment confirmation</strong> in the same chat.
+                  Your slot is only confirmed once we verify both.
                 </p>
               </div>
 
@@ -936,17 +682,12 @@ Thank you!`;
                 <input
                   type="checkbox"
                   checked={agreed}
-                  onChange={(e) =>
-                    setAgreed(e.target.checked)
-                  }
+                  onChange={(e) => setAgreed(e.target.checked)}
                   className="mt-1 h-4 w-4"
                 />
-
                 <span className="text-sm leading-6">
-                  I understand that the P{deposit} booking
-                  deposit is non-refundable and that I must
-                  send my proof of payment manually through
-                  WhatsApp after making the deposit.
+                  I understand that the P{deposit} booking deposit is non-refundable and that I
+                  must send my proof of payment manually through WhatsApp after making the deposit.
                 </span>
               </label>
             </div>
@@ -954,9 +695,7 @@ Thank you!`;
         )}
       </div>
 
-      {/* =========================
-          NAVIGATION
-      ========================== */}
+      {/* NAVIGATION */}
       <div className="mt-6 flex items-center justify-between gap-3">
         {step > 0 ? (
           <button
@@ -1000,9 +739,7 @@ Thank you!`;
         )}
       </div>
 
-      {/* =========================
-          BOOKING SUMMARY
-      ========================== */}
+      {/* BOOKING SUMMARY */}
       {selectedServices.length > 0 && (
         <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft">
           <div className="flex items-center justify-between gap-4">
@@ -1010,23 +747,13 @@ Thank you!`;
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Booking Summary
               </p>
-
               <p className="mt-1 font-semibold text-wine">
-                {selectedServices.length} service
-                {selectedServices.length === 1
-                  ? ""
-                  : "s"} selected
+                {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} selected
               </p>
             </div>
-
             <div className="text-right">
-              <p className="text-xl font-bold text-wine">
-                P{total}
-              </p>
-
-              <p className="text-xs text-muted-foreground">
-                {totalDuration} min
-              </p>
+              <p className="text-xl font-bold text-wine">P{total}</p>
+              <p className="text-xs text-muted-foreground">{totalDuration} min</p>
             </div>
           </div>
         </div>
