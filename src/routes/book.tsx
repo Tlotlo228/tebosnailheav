@@ -7,15 +7,14 @@ import {
   MessageCircle,
   CalendarDays,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
-import { services, business } from "@/lib/site-data";
+import { services, addOns, business } from "@/lib/site-data";
 
 export const Route = createFileRoute("/book")({
   head: () => ({
     meta: [
-      {
-        title: "Book an Appointment — Tebo's Nail Heaven",
-      },
+      { title: "Book an Appointment — Tebo's Nail Heaven" },
       {
         name: "description",
         content:
@@ -28,31 +27,24 @@ export const Route = createFileRoute("/book")({
 
 const steps = [
   "Services",
+  "Add-ons",
   "Slot",
   "Deposit",
   "Details",
   "WhatsApp",
 ] as const;
 
-type Step = (typeof steps)[number];
-
 const GOOGLE_CALENDAR_URL =
   "https://calendar.google.com/calendar/appointments/schedules/AcZssZ1W7FLd7QNWhruyqWof_L1WoMzuXqtY4PXYI32JyuiMr9o9nkqGBgcnJiq6VE_BTLZk7Q6f7WRh?gv=true";
 
 function BookingPage() {
   const [step, setStep] = useState(0);
-
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-
-  const [appointmentDate, setAppointmentDate] = useState("");
-  const [appointmentTime, setAppointmentTime] = useState("");
-
   const [txRef, setTxRef] = useState("");
-
   const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
@@ -68,36 +60,53 @@ function BookingPage() {
   }, [step]);
 
   const selectedServiceObjects = useMemo(
-    () => services.filter((service) => selectedServices.includes(service.id)),
+    () => services.filter((s) => selectedServices.includes(s.id)),
     [selectedServices]
   );
 
-  const total = selectedServiceObjects.reduce(
-    (sum, service) => sum + service.price,
+  const selectedAddOnObjects = useMemo(
+    () => addOns.filter((a) => selectedAddOns.includes(a.id)),
+    [selectedAddOns]
+  );
+
+  const hasCombo = selectedServiceObjects.some((s) =>
+    s.category.toLowerCase().includes("combo")
+  );
+
+  const servicesTotal = selectedServiceObjects.reduce(
+    (sum, s) => sum + s.price,
     0
   );
 
+  const addOnsTotal = hasCombo
+    ? 0
+    : selectedAddOnObjects.reduce((sum, a) => sum + a.price, 0);
+
+  const total = servicesTotal + addOnsTotal;
+
   const totalDuration = selectedServiceObjects.reduce(
-    (sum, service) => sum + service.duration,
+    (sum, s) => sum + s.duration,
     0
   );
 
   const deposit = business.depositAmount;
   const remaining = Math.max(total - deposit, 0);
 
-  const toggleService = (serviceId: string) => {
-    setSelectedServices((current) =>
-      current.includes(serviceId)
-        ? current.filter((id) => id !== serviceId)
-        : [...current, serviceId]
+  const toggleService = (id: string) => {
+    setSelectedServices((curr) =>
+      curr.includes(id) ? curr.filter((s) => s !== id) : [...curr, id]
+    );
+  };
+
+  const toggleAddOn = (id: string) => {
+    setSelectedAddOns((curr) =>
+      curr.includes(id) ? curr.filter((a) => a !== id) : [...curr, id]
     );
   };
 
   const groupedServices = services.reduce<Record<string, typeof services>>(
     (groups, service) => {
-      if (!groups[service.category]) {
-        groups[service.category] = [];
-      }
+      if (!groups[service.category]) groups[service.category] = [];
       groups[service.category].push(service);
       return groups;
     },
@@ -106,28 +115,38 @@ function BookingPage() {
 
   const canContinue = () => {
     if (step === 0) return selectedServices.length > 0;
-    if (step === 1) return appointmentDate !== "" && appointmentTime !== "";
-    if (step === 2) return txRef.trim().length > 0;
-    if (step === 3) return name.trim().length > 0 && phone.trim().length > 0;
-    if (step === 4) return agreed;
+    if (step === 1) return true; // add-ons optional
+    if (step === 2) return true; // slot — calendar handles it
+    if (step === 3) return txRef.trim().length > 0;
+    if (step === 4) return name.trim().length > 0 && phone.trim().length > 0;
+    if (step === 5) return agreed;
     return true;
   };
 
   const nextStep = () => {
     if (!canContinue()) return;
-    setStep((current) => Math.min(current + 1, steps.length - 1));
+    setStep((curr) => Math.min(curr + 1, steps.length - 1));
   };
 
   const previousStep = () => {
-    setStep((current) => Math.max(current - 1, 0));
+    setStep((curr) => Math.max(curr - 1, 0));
   };
 
   const buildWhatsAppMessage = () => {
     const serviceText = selectedServiceObjects
-      .map((service) => `• ${service.name} — P${service.price}`)
+      .map((s) => `• ${s.name} — P${s.price}`)
       .join("\n");
 
-    return `Hello Tebo's Nail Heaven! 💅
+    const addOnText =
+      selectedAddOnObjects.length > 0
+        ? `\nADD-ONS\n${
+            hasCombo
+              ? selectedAddOnObjects.map((a) => `• ${a.name} — FREE (included in combo)`).join("\n")
+              : selectedAddOnObjects.map((a) => `• ${a.name} — P${a.price}`).join("\n")
+          }\n`
+        : "";
+
+    return `Hello Tebo's Nail Heaven! 💅🏽
 
 I would like to confirm my appointment.
 
@@ -137,11 +156,7 @@ Phone: ${phone}
 
 SERVICES
 ${serviceText}
-
-APPOINTMENT
-Date: ${appointmentDate}
-Time: ${appointmentTime}
-
+${addOnText}
 BOOKING SUMMARY
 Total: P${total}
 Deposit required: P${deposit}
@@ -172,15 +187,10 @@ Thank you!`;
     <main className="mx-auto w-full max-w-6xl px-4 py-10 md:px-6 md:py-14">
       {/* HEADER */}
       <header className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
-          Reserve
-        </p>
-        <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">
-          Book Your Appointment
-        </h1>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Reserve</p>
+        <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">Book Your Appointment</h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-          Select your services first, then choose your appointment slot, review
-          your deposit, provide your details and confirm through WhatsApp.
+          Select your services, choose your add-ons, pick your slot and confirm through WhatsApp.
         </p>
         <div className="mx-auto mt-6 max-w-2xl rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">
           {business.hours}
@@ -212,20 +222,12 @@ Thank you!`;
                   >
                     {complete ? <Check className="h-5 w-5" /> : index + 1}
                   </div>
-                  <span
-                    className={`mt-2 text-[11px] font-semibold ${
-                      active ? "text-wine" : "text-muted-foreground"
-                    }`}
-                  >
+                  <span className={`mt-2 text-[11px] font-semibold ${active ? "text-wine" : "text-muted-foreground"}`}>
                     {stepName}
                   </span>
                 </button>
                 {index < steps.length - 1 && (
-                  <div
-                    className={`mt-7 h-px w-7 md:w-12 ${
-                      index < step ? "bg-gold" : "bg-border"
-                    }`}
-                  />
+                  <div className={`mt-7 h-px w-5 md:w-8 ${index < step ? "bg-gold" : "bg-border"}`} />
                 )}
               </div>
             );
@@ -242,8 +244,7 @@ Thank you!`;
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">Select Your Services</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Start by selecting every service you would like for your
-                appointment. You can combine multiple services.
+                Start by selecting every service you would like. You can combine multiple services.
               </p>
             </div>
 
@@ -269,13 +270,7 @@ Thank you!`;
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <div
-                              className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
-                                selected
-                                  ? "border-wine bg-wine text-white"
-                                  : "border-border"
-                              }`}
-                            >
+                            <div className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${selected ? "border-wine bg-wine text-white" : "border-border"}`}>
                               {selected && <Check className="h-3.5 w-3.5" />}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -284,13 +279,9 @@ Thank you!`;
                                 <span className="shrink-0 font-bold text-wine">P{service.price}</span>
                               </div>
                               {service.description && (
-                                <p className="mt-1 text-sm leading-5 text-muted-foreground">
-                                  {service.description}
-                                </p>
+                                <p className="mt-1 text-sm leading-5 text-muted-foreground">{service.description}</p>
                               )}
-                              <p className="mt-2 text-xs font-medium text-gold">
-                                {service.duration} minutes
-                              </p>
+                              <p className="mt-2 text-xs font-medium text-gold">{service.duration} minutes</p>
                             </div>
                           </div>
                         </button>
@@ -310,23 +301,102 @@ Thank you!`;
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">{totalDuration} minutes total</p>
                   </div>
-                  <p className="text-xl font-bold text-wine">P{total}</p>
+                  <p className="text-xl font-bold text-wine">P{servicesTotal}</p>
                 </div>
               </div>
             )}
 
             <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">Next: Choose your appointment slot</p>
+              <p className="font-semibold text-wine">Next: Choose your art add-ons</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Once you've selected your services, continue to the booking calendar to choose your
-                preferred date and time.
+                After services, you'll be able to add nail art extras to your appointment.
               </p>
             </div>
           </section>
         )}
 
-        {/* STEP 2 — SLOT */}
+        {/* STEP 2 — ADD-ONS */}
         {step === 1 && (
+          <section className="p-5 md:p-8">
+            <div className="mb-6">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-wine" />
+                <h2 className="font-script text-3xl text-wine">Nail Art Add-ons</h2>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Would you like to add nail art to your appointment? This step is optional — skip it if you don't want any art.
+              </p>
+            </div>
+
+            {hasCombo && (
+              <div className="mb-5 rounded-2xl border border-gold/40 bg-gold/5 p-4">
+                <p className="flex items-center gap-2 text-sm font-bold text-gold">
+                  <Sparkles className="h-4 w-4" /> Art is FREE with your combo set
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  You've selected a combo set — nail art is included at no extra charge. Select your preferred art level below.
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {addOns.map((addOn) => {
+                const selected = selectedAddOns.includes(addOn.id);
+                return (
+                  <button
+                    key={addOn.id}
+                    type="button"
+                    onClick={() => toggleAddOn(addOn.id)}
+                    aria-pressed={selected}
+                    className={`w-full rounded-2xl border p-5 text-left transition-all ${
+                      selected
+                        ? "border-wine bg-wine/5 ring-2 ring-wine/20"
+                        : "border-border bg-background hover:bg-secondary/50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${selected ? "border-wine bg-wine text-white" : "border-border"}`}>
+                        {selected && <Check className="h-3.5 w-3.5" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="font-semibold text-wine">{addOn.name}</p>
+                          <span className="shrink-0 font-bold text-wine">
+                            {hasCombo ? <span className="text-gold">FREE</span> : `P${addOn.price}`}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-secondary/50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold">Services subtotal</p>
+                  {selectedAddOnObjects.length > 0 && !hasCombo && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      + {selectedAddOnObjects.length} add-on{selectedAddOnObjects.length === 1 ? "" : "s"}
+                    </p>
+                  )}
+                </div>
+                <p className="text-xl font-bold text-wine">P{total}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="text-sm font-semibold text-wine">Note from Tebo</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Art is <strong>free in combo sets</strong>. An extra P20 applies if you do extensions on both hands and toes for a combo.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* STEP 3 — SLOT */}
+        {step === 2 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <div className="flex items-center gap-3">
@@ -334,8 +404,7 @@ Thank you!`;
                 <h2 className="font-script text-3xl text-wine">Pick Your Booking Slot</h2>
               </div>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                You've selected your services. Now choose your preferred date and time using the
-                booking calendar below.
+                Choose your preferred date and time using the booking calendar below.
               </p>
             </div>
 
@@ -343,10 +412,12 @@ Thank you!`;
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Selected Services
+                    Your Booking
                   </p>
                   <p className="mt-1 font-semibold text-wine">
-                    {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} · {totalDuration} minutes
+                    {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"}
+                    {selectedAddOnObjects.length > 0 && ` + ${selectedAddOnObjects.length} add-on${selectedAddOnObjects.length === 1 ? "" : "s"}`}
+                    {" · "}{totalDuration} minutes
                   </p>
                 </div>
                 <p className="text-xl font-bold text-wine">P{total}</p>
@@ -356,6 +427,12 @@ Thank you!`;
                   <div key={service.id} className="flex justify-between gap-4 text-sm">
                     <span>{service.name}</span>
                     <span className="font-medium">P{service.price}</span>
+                  </div>
+                ))}
+                {selectedAddOnObjects.map((addOn) => (
+                  <div key={addOn.id} className="flex justify-between gap-4 text-sm text-muted-foreground">
+                    <span>{addOn.name}</span>
+                    <span className="font-medium">{hasCombo ? "FREE" : `P${addOn.price}`}</span>
                   </div>
                 ))}
               </div>
@@ -371,64 +448,30 @@ Thank you!`;
               />
             </div>
 
-            <div className="mt-6 rounded-2xl bg-secondary/50 p-5">
-              <p className="font-semibold text-wine">Appointment details</p>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                After selecting your appointment in the calendar, enter the date and time below so
-                it can also be included in your WhatsApp booking message.
-              </p>
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <label className="block">
-                  <span className="text-sm font-semibold">Selected Date *</span>
-                  <input
-                    type="date"
-                    value={appointmentDate}
-                    onChange={(e) => setAppointmentDate(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm font-semibold">Selected Time *</span>
-                  <input
-                    type="time"
-                    value={appointmentTime}
-                    onChange={(e) => setAppointmentTime(e.target.value)}
-                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
-                  />
-                </label>
-              </div>
-            </div>
-
             <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">Make sure your slot is correct</p>
+              <p className="font-semibold text-wine">Select your slot in the calendar above</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                The date and time you enter above will be included in your WhatsApp confirmation
-                message. Please make sure they match the slot you selected in the calendar.
+                Once you've chosen your date and time in the calendar, click Continue to proceed to the deposit step.
               </p>
             </div>
           </section>
         )}
 
-        {/* STEP 3 — DEPOSIT */}
-        {step === 2 && (
+        {/* STEP 4 — DEPOSIT */}
+        {step === 3 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">Deposit</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Review the deposit and payment information, make your payment, then enter your
-                transaction reference below.
+                Review the payment details, make your deposit, then enter your transaction reference below.
               </p>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
               <div className="rounded-2xl border border-border bg-background p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Deposit Required
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Deposit Required</p>
                 <p className="mt-2 text-4xl font-bold text-wine">P{deposit}</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  This booking deposit is non-refundable.
-                </p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">This booking deposit is non-refundable.</p>
                 <div className="mt-5 border-t border-border pt-4">
                   <div className="flex justify-between text-sm">
                     <span>Total booking</span>
@@ -468,61 +511,41 @@ Thank you!`;
               </div>
             </div>
 
-            {/* ✅ TRANSACTION REFERENCE SECTION */}
+            {/* TRANSACTION REFERENCE */}
             <div className="mt-6 rounded-2xl border-2 border-wine/30 bg-wine/5 p-6">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-wine" />
                 <p className="font-bold text-wine">What is a transaction reference?</p>
               </div>
-
               <p className="mt-3 text-sm leading-6 text-foreground/85">
-                When you pay via Pay-to-Cell or bank transfer, your bank or mobile money provider
-                sends you a <strong>confirmation SMS or notification</strong>. Inside that message
-                is a unique code — that's your <strong>transaction reference</strong>.
+                When you pay via Pay-to-Cell or bank transfer, your bank or mobile money provider sends you a{" "}
+                <strong>confirmation SMS or notification</strong>. Inside that message is a unique code — that's your{" "}
+                <strong>transaction reference</strong>.
               </p>
-
               <p className="mt-2 text-sm leading-6 text-foreground/85">
-                We use this code to <strong>match your payment to your booking</strong>. Without
-                it, we have no way of knowing the deposit came from you — and your slot{" "}
-                <strong>cannot be confirmed</strong>. Think of it as your booking receipt number.
+                We use this code to <strong>match your payment to your booking</strong>. Without it, we have no way of knowing the deposit came from you — and your slot{" "}
+                <strong>cannot be confirmed</strong>.
               </p>
-
               <div className="mt-4 rounded-xl bg-card p-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-wine">
-                  Where to find it
-                </p>
+                <p className="text-xs font-bold uppercase tracking-wider text-wine">Where to find it</p>
                 <ul className="mt-3 space-y-2 text-sm text-foreground/85">
                   <li className="flex items-start gap-2">
                     <span>📱</span>
-                    <span>
-                      <strong>Orange Money / Pay-to-Cell:</strong> Check the SMS you receive
-                      immediately after sending the payment. The reference starts with something
-                      like <strong>PTC-</strong> or <strong>OM-</strong>.
-                    </span>
+                    <span><strong>Orange Money / Pay-to-Cell:</strong> Check the SMS you receive immediately after paying. The reference starts with something like <strong>PTC-</strong> or <strong>OM-</strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>🏦</span>
-                    <span>
-                      <strong>Absa / bank transfer:</strong> Check your banking app notification,
-                      email confirmation, or transaction history. It usually looks like{" "}
-                      <strong>FT2308XXXXX</strong>.
-                    </span>
+                    <span><strong>Absa / bank transfer:</strong> Check your banking app notification or email. It usually looks like <strong>FT2308XXXXX</strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>📋</span>
-                    <span>
-                      <strong>Can't find it?</strong> Don't panic — just send your payment
-                      screenshot on WhatsApp and we'll locate it together.
-                    </span>
+                    <span><strong>Can't find it?</strong> Just send your payment screenshot on WhatsApp and we'll locate it together.</span>
                   </li>
                 </ul>
               </div>
-
               <div className="mt-5">
                 <label className="block">
-                  <span className="text-sm font-bold text-wine">
-                    Paste your transaction reference here *
-                  </span>
+                  <span className="text-sm font-bold text-wine">Paste your transaction reference here *</span>
                   <input
                     value={txRef}
                     onChange={(e) => setTxRef(e.target.value)}
@@ -530,8 +553,7 @@ Thank you!`;
                     className="mt-2 w-full rounded-xl border border-wine/40 bg-background px-4 py-3 text-sm outline-none transition focus:border-wine focus:ring-2 focus:ring-wine/20"
                   />
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Copy and paste it exactly as it appears in your SMS or banking app. You cannot
-                    continue without this — it's how we verify your deposit.
+                    Copy and paste it exactly as it appears in your SMS or banking app. You cannot continue without this.
                   </p>
                 </label>
               </div>
@@ -540,16 +562,15 @@ Thank you!`;
             <div className="mt-5 rounded-2xl border border-gold/30 bg-gold/5 p-5">
               <p className="font-semibold text-wine">Also send your proof of payment</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                After completing this booking, send a <strong>screenshot</strong> of your payment
-                confirmation <strong>manually on WhatsApp</strong>. No upload is required on this
-                website.
+                After completing this booking, send a <strong>screenshot</strong> of your payment confirmation{" "}
+                <strong>manually on WhatsApp</strong>. No upload required on this website.
               </p>
             </div>
           </section>
         )}
 
-        {/* STEP 4 — DETAILS */}
-        {step === 3 && (
+        {/* STEP 5 — DETAILS */}
+        {step === 4 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">Your Details</h2>
@@ -557,7 +578,6 @@ Thank you!`;
                 Enter your details so Tebo's Nail Heaven can contact you about your appointment.
               </p>
             </div>
-
             <div className="grid gap-5 md:grid-cols-2">
               <label className="block">
                 <span className="text-sm font-semibold">Full Name *</span>
@@ -579,13 +599,12 @@ Thank you!`;
                 />
               </label>
             </div>
-
             <label className="mt-5 block">
               <span className="text-sm font-semibold">Additional Notes</span>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Anything we should know about your appointment?"
+                placeholder="Any allergies, preferences, special requests…"
                 rows={5}
                 className="mt-2 w-full resize-none rounded-xl border border-border bg-background px-4 py-3 outline-none transition focus:border-wine"
               />
@@ -593,8 +612,8 @@ Thank you!`;
           </section>
         )}
 
-        {/* STEP 5 — WHATSAPP */}
-        {step === 4 && (
+        {/* STEP 6 — WHATSAPP */}
+        {step === 5 && (
           <section className="p-5 md:p-8">
             <div className="mb-6 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold text-white">
@@ -620,15 +639,25 @@ Thank you!`;
                 </div>
               </div>
 
-              {/* APPOINTMENT */}
-              <div className="rounded-2xl border border-border p-5">
-                <h3 className="font-semibold text-wine">Appointment</h3>
-                <div className="mt-3 space-y-2 text-sm">
-                  <p><strong>Date:</strong> {appointmentDate}</p>
-                  <p><strong>Time:</strong> {appointmentTime}</p>
-                  <p><strong>Duration:</strong> {totalDuration} minutes</p>
+              {/* ADD-ONS */}
+              {selectedAddOnObjects.length > 0 && (
+                <div className="rounded-2xl border border-border p-5">
+                  <h3 className="font-semibold text-wine">Nail Art Add-ons</h3>
+                  <div className="mt-3 space-y-3">
+                    {selectedAddOnObjects.map((addOn) => (
+                      <div key={addOn.id} className="flex justify-between gap-4 text-sm">
+                        <span>{addOn.name}</span>
+                        <span className="font-semibold">
+                          {hasCombo ? <span className="text-gold">FREE</span> : `P${addOn.price}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {hasCombo && (
+                    <p className="mt-2 text-xs text-gold font-medium">Art is free with your combo set.</p>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* TOTAL */}
               <div className="rounded-2xl bg-secondary/50 p-5">
@@ -649,9 +678,9 @@ Thank you!`;
               {/* TRANSACTION REF */}
               <div className="rounded-2xl border border-wine/20 bg-wine/5 p-5">
                 <h3 className="font-semibold text-wine">Transaction Reference</h3>
-                <p className="mt-2 text-sm font-mono font-bold text-wine">{txRef}</p>
+                <p className="mt-2 font-mono text-sm font-bold text-wine">{txRef}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  This will be included in your WhatsApp message so we can verify your deposit.
+                  Included in your WhatsApp message so we can verify your deposit.
                 </p>
               </div>
 
@@ -661,9 +690,7 @@ Thank you!`;
                 <p className="mt-3 text-sm"><strong>Name:</strong> {name}</p>
                 <p className="mt-1 text-sm"><strong>Phone:</strong> {phone}</p>
                 {notes && (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    <strong>Notes:</strong> {notes}
-                  </p>
+                  <p className="mt-3 text-sm text-muted-foreground"><strong>Notes:</strong> {notes}</p>
                 )}
               </div>
 
@@ -672,8 +699,7 @@ Thank you!`;
                 <p className="font-semibold text-wine">Proof of Payment</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   After sending this WhatsApp message, also send a{" "}
-                  <strong>screenshot of your payment confirmation</strong> in the same chat.
-                  Your slot is only confirmed once we verify both.
+                  <strong>screenshot of your payment confirmation</strong> in the same chat. Your slot is only confirmed once we verify both.
                 </p>
               </div>
 
@@ -686,8 +712,7 @@ Thank you!`;
                   className="mt-1 h-4 w-4"
                 />
                 <span className="text-sm leading-6">
-                  I understand that the P{deposit} booking deposit is non-refundable and that I
-                  must send my proof of payment manually through WhatsApp after making the deposit.
+                  I understand that the P{deposit} booking deposit is non-refundable and that I must send my proof of payment manually through WhatsApp after making the deposit.
                 </span>
               </label>
             </div>
@@ -723,7 +748,7 @@ Thank you!`;
             disabled={!canContinue()}
             className="inline-flex items-center gap-2 rounded-full bg-wine px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Continue
+            {step === 1 && selectedAddOns.length === 0 ? "Skip Add-ons" : "Continue"}
             <ArrowRight className="h-4 w-4" />
           </button>
         ) : (
@@ -744,11 +769,10 @@ Thank you!`;
         <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-soft">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Booking Summary
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Booking Summary</p>
               <p className="mt-1 font-semibold text-wine">
-                {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} selected
+                {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"}
+                {selectedAddOnObjects.length > 0 && ` + ${selectedAddOnObjects.length} add-on${selectedAddOnObjects.length === 1 ? "" : "s"}`}
               </p>
             </div>
             <div className="text-right">
