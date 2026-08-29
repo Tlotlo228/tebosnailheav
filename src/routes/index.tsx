@@ -164,3 +164,4 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
       <h2 className="mt-2 font-script text-4xl text-wine md:text-5xl">{title}</h2>
     </div>
   );
+}
