@@ -1,4 +1,4 @@
- export type Service = {
+export type Service = {
   id: string;
   category: string;
   name: string;
@@ -86,44 +86,46 @@ export const services: Service[] = [
   { id: "lash-open-hybrid", category: "Cluster Lashes — Open Eye Looks", name: "Open Eye · Hybrid", description: "Eye-opening hybrid cluster set.", duration: 60, price: 230 },
   { id: "lash-open-volume", category: "Cluster Lashes — Open Eye Looks", name: "Open Eye · Volume", description: "Eye-opening volume cluster set.", duration: 70, price: 250 },
   { id: "lash-removal", category: "Cluster Lashes — Removal", name: "Lash Removal", description: "Gentle, safe cluster lash removal.", duration: 20, price: 50 },
-    // ----- PEDICURE -----
+
+  // ----- PEDICURE -----
   {
-  id: "pedicure-foot-scrubbing",
-  category: "Pedicure",
-  name: "Foot Scrubbing",
-  description: "Professional foot scrub treatment.",
-  duration: 60,
-  price: 200,
+    id: "pedicure-foot-scrubbing",
+    category: "Pedicure",
+    name: "Foot Scrubbing",
+    description: "Professional foot scrub treatment.",
+    duration: 60,
+    price: 200,
   },
+
   // ----- SOAK OFF -----
-{
-  id: "soak-off",
-  category: "Soak Off",
-  name: "Soak Off",
-  description: "Safe and gentle removal of gel or polygel product from hands or toes.",
-  duration: 30,
-  price: 50,
-},
+  {
+    id: "soak-off",
+    category: "Soak Off",
+    name: "Soak Off",
+    description: "Safe and gentle removal of gel or polygel product from hands or toes.",
+    duration: 30,
+    price: 50,
+  },
 
   // ----- MAKE UP -----
   {
-  id: "makeup-soft-glam",
-  category: "Make Up",
-  name: "Soft Glam",
-  description: "Elegant soft glam makeup.",
-  duration: 90,
-  price: 250,
-  image: "https://i.postimg.cc/g2hwD5r8/54f44b8f-66d6-4cbc-8ecb-3a2a2525cb0e.jpg",
-},
-{
-  id: "makeup-full-glam",
-  category: "Make Up",
-  name: "Full Glam",
-  description: "Full glamorous makeup.",
-  duration: 120,
-  price: 350,
-  image: "https://i.postimg.cc/W3TJtnNz/3283555f-1de0-466f-977f-b95246be3cc2.jpg",
-}
+    id: "makeup-soft-glam",
+    category: "Make Up",
+    name: "Soft Glam",
+    description: "Elegant soft glam makeup.",
+    duration: 90,
+    price: 250,
+    image: new URL("../assets/WA0031.jpg", import.meta.url).href,
+  },
+  {
+    id: "makeup-full-glam",
+    category: "Make Up",
+    name: "Full Glam",
+    description: "Full glamorous makeup.",
+    duration: 120,
+    price: 350,
+    image: new URL("../assets/WA0032.jpg", import.meta.url).href,
+  },
 ];
 
 export const addOns = [
