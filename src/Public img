@@ -1,0 +1,7 @@
+const IMG = {
+  hero: "/images/WA0030.jpg",
+  gallery1: "/images/WA0030.jpg",
+  gallery2: "/images/WA0033.jpg",
+  gallery3: "/images/WA0032.jpg",
+  gallery4: "/images/WA0031.jpg",
+};
