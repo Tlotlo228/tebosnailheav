@@ -1,4 +1,4 @@
-export type Service = {
+ export type Service = {
   id: string;
   category: string;
   name: string;
@@ -104,7 +104,6 @@ export const services: Service[] = [
   duration: 30,
   price: 50,
 },
-
 
   // ----- MAKE UP -----
   {
