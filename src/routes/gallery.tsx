@@ -2,26 +2,32 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { X } from "lucide-react";
 
+import img28 from "../assets/WA0028.jpg";
+import img30 from "../assets/WA0030.jpg";
+import img31 from "../assets/WA0031.jpg";
+import img32 from "../assets/WA0032.jpg";
+import img33 from "../assets/WA0033.jpg";
+
 const IMG = {
-  img1: "https://i.postimg.cc/qB3WG9zC/Whats-App-Image-2026-06-21-at-11-48-48-(1).jpg",
-  img2: "https://i.postimg.cc/y6Z2TwkF/Whats-App-Image-2026-06-21-at-11-48-48-(2).jpg",
-  img3: "https://i.postimg.cc/MZQgYhv0/Whats-App-Image-2026-06-21-at-11-48-48-(3).jpg",
-  img4: "https://i.postimg.cc/jq7BhGLQ/Whats-App-Image-2026-06-21-at-11-48-48-(4).jpg",
-  img5: "https://i.postimg.cc/zDg4k9VC/Whats-App-Image-2026-06-21-at-11-48-48-(5).jpg",
-  img6: "https://i.postimg.cc/mgwbsVF2/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
-  img7: "https://i.postimg.cc/VNZmS6RW/c445313a-b5b1-4924-9236-5d4e85f6c3c0.jpg",
-  img8: "https://i.postimg.cc/NMvbk8pt/2ce392ff-8fff-49ad-8d6f-d47ed0484db6.jpg",
-  img9: "https://i.postimg.cc/qv9GpXfY/57ff07e6-7640-49a9-9f58-6623f17af825.jpg",
-  img10: "https://i.postimg.cc/hjRM18pg/d413edce-8530-4155-af5e-8730a35bafe3.jpg",
-  img11: "https://i.postimg.cc/ZRMWzhk8/IMG-20260622-WA0014.jpg",
-  img12: "https://i.postimg.cc/50SLmr7y/3adb0924-04b4-406d-855b-fb60d7dc7176.jpg",
-  img13: "https://i.postimg.cc/ZKM3jpHk/52330ab7-8cea-43db-9171-7454cdc59ad4.jpg",
-  img14: "https://i.postimg.cc/W3TJtnNz/3283555f-1de0-466f-977f-b95246be3cc2.jpg",
-  img15: "https://i.postimg.cc/brFGCfQw/fd19ec2d-91b6-4ee8-9a93-fa76054e5aa5.jpg",
-  img16: "https://i.postimg.cc/g2hwD5r8/54f44b8f-66d6-4cbc-8ecb-3a2a2525cb0e.jpg",
+  img1: img28,
+  img2: img30,
+  img3: img31,
+  img4: img32,
+  img5: img33,
+  img6: img28,
+  img7: img30,
+  img8: img31,
+  img9: img32,
+  img10: img33,
+  img11: img28,
+  img12: img30,
+  img13: img31,
+  img14: img32,
+  img15: img33,
+  img16: img28,
 };
 
-type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" };
+type Item = { url: string; alt: string; category: "Gel" | "Polygel" | "Color" | "All" };
 
 const items: Item[] = [
   { url: IMG.img1, alt: "Pink & white French gel with gold trim", category: "Gel" },
@@ -35,7 +41,7 @@ const items: Item[] = [
   { url: IMG.img9, alt: "Nail art by Tebo's Nail Heaven", category: "Gel" },
   { url: IMG.img10, alt: "Nail art by Tebo's Nail Heaven", category: "Polygel" },
   { url: IMG.img11, alt: "Nail art by Tebo's Nail Heaven", category: "All" },
-    { url: IMG.img12, alt: "Pedicure (Foot Scrubbing)", category:"All" },
+  { url: IMG.img12, alt: "Pedicure (Foot Scrubbing)", category: "All" },
   { url: IMG.img13, alt: "Soft Glam Makeup", category: "All" },
   { url: IMG.img14, alt: "Full Glam Makeup", category: "All" },
   { url: IMG.img15, alt: "Hair Installation", category: "All" },
@@ -51,7 +57,7 @@ export const Route = createFileRoute("/gallery")({
       { name: "description", content: "Recent nail sets — gel, polygel, and color manicures by Tebo." },
       { property: "og:title", content: "Gallery — Tebo's Nail Heaven" },
       { property: "og:description", content: "Browse recent nail art and lash sets." },
-      { property: "og:image", content: IMG.img1 },
+      { property: "og:image", content: img28 },
     ],
   }),
   component: Gallery,
