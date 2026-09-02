@@ -18,7 +18,7 @@ export const Route = createFileRoute("/book")({
       {
         name: "description",
         content:
-          "Book your appointment at Tebo's Nail Heaven. Select your services, choose your appointment slot, provide your details and confirm through WhatsApp.",
+          "Book your appointment at Tebo's Nail Heaven. Select your services, make your deposit, choose your appointment slot, provide your details and confirm through WhatsApp.",
       },
     ],
   }),
@@ -28,8 +28,8 @@ export const Route = createFileRoute("/book")({
 const steps = [
   "Services",
   "Add-ons",
-  "Slot",
   "Deposit",
+  "Slot",
   "Details",
   "WhatsApp",
 ] as const;
@@ -116,8 +116,8 @@ function BookingPage() {
   const canContinue = () => {
     if (step === 0) return selectedServices.length > 0;
     if (step === 1) return true; // add-ons optional
-    if (step === 2) return true; // slot — calendar handles it
-    if (step === 3) return txRef.trim().length > 0;
+    if (step === 2) return txRef.trim().length > 0;
+    if (step === 3) return true; // slot — calendar handles it
     if (step === 4) return name.trim().length > 0 && phone.trim().length > 0;
     if (step === 5) return agreed;
     return true;
@@ -190,7 +190,7 @@ Thank you!`;
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Reserve</p>
         <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">Book Your Appointment</h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-          Select your services, choose your add-ons, pick your slot and confirm through WhatsApp.
+          Select your services, choose your add-ons, make your deposit, pick your slot and confirm through WhatsApp.
         </p>
         <div className="mx-auto mt-6 max-w-2xl rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">
           {business.hours}
@@ -395,70 +395,8 @@ Thank you!`;
           </section>
         )}
 
-        {/* STEP 3 — SLOT */}
+        {/* STEP 3 — DEPOSIT */}
         {step === 2 && (
-          <section className="p-5 md:p-8">
-            <div className="mb-6">
-              <div className="flex items-center gap-3">
-                <CalendarDays className="h-6 w-6 text-wine" />
-                <h2 className="font-script text-3xl text-wine">Pick Your Booking Slot</h2>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Choose your preferred date and time using the booking calendar below.
-              </p>
-            </div>
-
-            <div className="mb-6 rounded-2xl bg-secondary/50 p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Your Booking
-                  </p>
-                  <p className="mt-1 font-semibold text-wine">
-                    {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"}
-                    {selectedAddOnObjects.length > 0 && ` + ${selectedAddOnObjects.length} add-on${selectedAddOnObjects.length === 1 ? "" : "s"}`}
-                    {" · "}{totalDuration} minutes
-                  </p>
-                </div>
-                <p className="text-xl font-bold text-wine">P{total}</p>
-              </div>
-              <div className="mt-3 space-y-1">
-                {selectedServiceObjects.map((service) => (
-                  <div key={service.id} className="flex justify-between gap-4 text-sm">
-                    <span>{service.name}</span>
-                    <span className="font-medium">P{service.price}</span>
-                  </div>
-                ))}
-                {selectedAddOnObjects.map((addOn) => (
-                  <div key={addOn.id} className="flex justify-between gap-4 text-sm text-muted-foreground">
-                    <span>{addOn.name}</span>
-                    <span className="font-medium">{hasCombo ? "FREE" : `P${addOn.price}`}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-3xl border border-border bg-background">
-              <iframe
-                src={GOOGLE_CALENDAR_URL}
-                title="Tebo's Nail Heaven Appointment Calendar"
-                className="block h-[900px] w-full border-0 md:h-[850px]"
-                loading="lazy"
-                allow="fullscreen"
-              />
-            </div>
-
-            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
-              <p className="font-semibold text-wine">Select your slot in the calendar above</p>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Once you've chosen your date and time in the calendar, click Continue to proceed to the deposit step.
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* STEP 4 — DEPOSIT */}
-        {step === 3 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">Deposit</h2>
@@ -564,6 +502,68 @@ Thank you!`;
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 After completing this booking, send a <strong>screenshot</strong> of your payment confirmation{" "}
                 <strong>manually on WhatsApp</strong>. No upload required on this website.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* STEP 4 — SLOT */}
+        {step === 3 && (
+          <section className="p-5 md:p-8">
+            <div className="mb-6">
+              <div className="flex items-center gap-3">
+                <CalendarDays className="h-6 w-6 text-wine" />
+                <h2 className="font-script text-3xl text-wine">Pick Your Booking Slot</h2>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Choose your preferred date and time using the booking calendar below.
+              </p>
+            </div>
+
+            <div className="mb-6 rounded-2xl bg-secondary/50 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Your Booking
+                  </p>
+                  <p className="mt-1 font-semibold text-wine">
+                    {selectedServices.length} service{selectedServices.length === 1 ? "" : "s"}
+                    {selectedAddOnObjects.length > 0 && ` + ${selectedAddOnObjects.length} add-on${selectedAddOnObjects.length === 1 ? "" : "s"}`}
+                    {" · "}{totalDuration} minutes
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-wine">P{total}</p>
+              </div>
+              <div className="mt-3 space-y-1">
+                {selectedServiceObjects.map((service) => (
+                  <div key={service.id} className="flex justify-between gap-4 text-sm">
+                    <span>{service.name}</span>
+                    <span className="font-medium">P{service.price}</span>
+                  </div>
+                ))}
+                {selectedAddOnObjects.map((addOn) => (
+                  <div key={addOn.id} className="flex justify-between gap-4 text-sm text-muted-foreground">
+                    <span>{addOn.name}</span>
+                    <span className="font-medium">{hasCombo ? "FREE" : `P${addOn.price}`}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-3xl border border-border bg-background">
+              <iframe
+                src={GOOGLE_CALENDAR_URL}
+                title="Tebo's Nail Heaven Appointment Calendar"
+                className="block h-[900px] w-full border-0 md:h-[850px]"
+                loading="lazy"
+                allow="fullscreen"
+              />
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
+              <p className="font-semibold text-wine">Select your slot in the calendar above</p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Once you've chosen your date and time in the calendar, click Continue to proceed to your details.
               </p>
             </div>
           </section>
