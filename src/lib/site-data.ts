@@ -42,7 +42,7 @@ export const business = {
 export const services: Service[] = [
   // ----- GEL NAILS -----
   { id: "gel-hand-rubber", category: "Gel Nails — Hand Extensions", name: "Rubber Base Extensions", description: "Full hand gel extensions with strengthening rubber base.", duration: 90, price: 200 },
-  { id: "gel-hand-solid", category: "Gel Nails — Hand Extensions", name: "Solid Color Extensions", description: "Hand extensions finished in your chosen solid gel color.", duration: 90, price: 210 },
+  { id: "gel-hand-solid", category: "Gel Nails — Hand Extensions", name: "Solid Color Extensions", description: "Hand extensions finished in your chosen solid gel color.", duration: 90, price: 240 },
   { id: "gel-hand-french", category: "Gel Nails — Hand Extensions", name: "Classic French Tip Extensions", description: "Timeless French tip on full hand extensions.", duration: 105, price: 250 },
   { id: "gel-overlay-rubber", category: "Gel Nails — Overlay", name: "Rubber Base Overlay", description: "Strengthening gel overlay on your natural nails.", duration: 60, price: 150 },
   { id: "gel-overlay-solid", category: "Gel Nails — Overlay", name: "Solid Color Overlay", description: "Gel overlay finished in a single solid shade.", duration: 60, price: 160 },
