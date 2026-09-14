@@ -59,7 +59,7 @@ export const services: Service[] = [
 
   // ----- POLYGEL NAILS -----
   { id: "poly-hand-rubber", category: "Polygel — Hand Extensions", name: "Rubber Base Extensions", description: "Polygel hand extensions with rubber base.", duration: 105, price: 220 },
-  { id: "poly-hand-solid", category: "Polygel — Hand Extensions", name: "Solid Color Extensions", description: "Polygel hand extensions in solid color.", duration: 105, price: 230 },
+  { id: "poly-hand-solid", category: "Polygel — Hand Extensions", name: "Solid Color Extensions", description: "Polygel hand extensions in solid color.", duration: 105, price: 260 },
   { id: "poly-hand-french", category: "Polygel — Hand Extensions", name: "Classic French Tip Extensions", description: "French tip polygel hand extensions.", duration: 120, price: 270 },
   { id: "poly-overlay-rubber", category: "Polygel — Overlay", name: "Rubber Base Overlay", description: "Polygel overlay with rubber base on natural nails.", duration: 75, price: 170 },
   { id: "poly-overlay-solid", category: "Polygel — Overlay", name: "Solid Color Overlay", description: "Polygel overlay in a single solid shade.", duration: 75, price: 180 },
