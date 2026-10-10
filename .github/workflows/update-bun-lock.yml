@@ -1,4 +1,5 @@
 
+
 name: Update Bun Lockfile
 
 on:
@@ -18,17 +19,24 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Regenerate lockfile
-        run: bun install --lockfile-only
+      - name: Regenerate lockfile from package.json
+        run: |
+          rm -f bun.lock bun.lockb
+          bun install
+
+      - name: Verify TanStack Start version
+        run: |
+          bun pm ls
+          grep -n -A 5 -B 2 'react-start' bun.lock
 
       - name: Commit updated lockfile
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add bun.lock
+          git add bun.lock bun.lockb
           if ! git diff --cached --quiet; then
-            git commit -m "Update Bun lockfile"
+            git commit -m "Regenerate dependency lockfile"
             git push
           else
-            echo "No lockfile changes needed"
+            echo "No lockfile changes detected"
           fi
