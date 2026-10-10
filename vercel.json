@@ -1,13 +1,13 @@
 
 {
-  "buildCommand": "vite build && (test -f dist/client/index.html || test -f dist/client/.html && mv dist/client/.html dist/client/index.html || true)",
+  "buildCommand": "vite build",
   "outputDirectory": "dist/client",
   "framework": null,
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/((?!.*\\.).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
