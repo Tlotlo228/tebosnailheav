@@ -18,7 +18,7 @@ export const Route = createFileRoute("/book")({
       {
         name: "description",
         content:
-          "Book your appointment at Tebo's Nail Heaven. Select your services, make your deposit, choose your appointment slot, provide your details and confirm through WhatsApp.",
+          "Book your appointment at Tebo's Nail Heaven. Select your services, choose your slot, make your deposit, provide your details and confirm through WhatsApp.",
       },
     ],
   }),
@@ -28,8 +28,8 @@ export const Route = createFileRoute("/book")({
 const steps = [
   "Services",
   "Add-ons",
-  "Deposit",
   "Slot",
+  "Deposit",
   "Details",
   "WhatsApp",
 ] as const;
@@ -116,8 +116,8 @@ function BookingPage() {
   const canContinue = () => {
     if (step === 0) return selectedServices.length > 0;
     if (step === 1) return true; // add-ons optional
-    if (step === 2) return txRef.trim().length > 0;
-    if (step === 3) return true; // slot — calendar handles it
+    if (step === 2) return true; // slot — calendar handles it
+    if (step === 3) return txRef.trim().length > 0; // deposit reference required
     if (step === 4) return name.trim().length > 0 && phone.trim().length > 0;
     if (step === 5) return agreed;
     return true;
@@ -190,7 +190,7 @@ Thank you!`;
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">Reserve</p>
         <h1 className="mt-2 font-script text-5xl text-wine md:text-6xl">Book Your Appointment</h1>
         <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-          Select your services, choose your add-ons, make your deposit, pick your slot and confirm through WhatsApp.
+          Select your services, choose your add-ons, pick your slot, make your deposit and confirm through WhatsApp.
         </p>
         <div className="mx-auto mt-6 max-w-2xl rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">
           {business.hours}
@@ -395,8 +395,8 @@ Thank you!`;
           </section>
         )}
 
-        {/* STEP 3 — DEPOSIT */}
-        {step === 2 && (
+        {/* STEP 3 — DEPOSIT (now after Slot) */}
+        {step === 3 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <h2 className="font-script text-3xl text-wine">Deposit</h2>
@@ -507,8 +507,8 @@ Thank you!`;
           </section>
         )}
 
-        {/* STEP 4 — SLOT */}
-        {step === 3 && (
+        {/* STEP 4 — SLOT (now before Deposit) */}
+        {step === 2 && (
           <section className="p-5 md:p-8">
             <div className="mb-6">
               <div className="flex items-center gap-3">
@@ -563,7 +563,7 @@ Thank you!`;
             <div className="mt-6 rounded-2xl border border-gold/30 bg-gold/5 p-5">
               <p className="font-semibold text-wine">Select your slot in the calendar above</p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Once you've chosen your date and time in the calendar, click Continue to proceed to your details.
+                Once you've chosen your date and time in the calendar, click Continue to proceed to your deposit.
               </p>
             </div>
           </section>
