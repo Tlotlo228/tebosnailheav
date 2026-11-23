@@ -469,7 +469,7 @@ Thank you!`;
                 <ul className="mt-3 space-y-2 text-sm text-foreground/85">
                   <li className="flex items-start gap-2">
                     <span>📱</span>
-                    <span><strong>Orange Money / Pay-to-Cell:</strong> Check the SMS you receive immediately after paying. The reference starts with something like <strong>PTC-</strong> or <strong>OM-</strong>.</span>
+                    <span><strong> Pay-to-Cell:</strong> Check the SMS you receive immediately after paying. The reference starts with something like <strong>PTC-</strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span>🏦</span>
